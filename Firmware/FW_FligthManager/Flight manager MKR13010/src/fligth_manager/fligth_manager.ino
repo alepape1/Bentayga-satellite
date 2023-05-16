@@ -4,6 +4,8 @@
 #include <MKRIMU.h>
 #include <LoRa.h>
 #include "Seeed_BME280.h"
+#include <Arduino_MKRGPS.h>
+
 
 // Initializes the barometer sensor and sets up the connection status variable
 MS5x barometer(&Wire);
@@ -11,13 +13,30 @@ MS5x barometer(&Wire);
 // Initizes the barometer sensor and Temperature for batteries
 //BME280 bme280;
 
+// Strucuture of data for Sensor data from the satellite
+struct SensorData {
+  float roll;
+  float pitch;
+  float heading;
+  float temperature;
+  float pressure;
+  float seaLevelPressure;
+  float altitude;
+  float correctedAltitude;
+  float latitude;
+  float longitude;
+  float speed;
+  uint8_t numSatellites;
+};
+
+
 // Flag barometer status
 bool barometerConnected = false;
 
 // Stores the time of the last connection attempt, delay time between attempts, and the last time the device was polled
 uint32_t prevConnectionAttempt = 0;
-uint32_t connectionAttemptDelay = 500; // Time in ms to wait between connection attempts to the sensor
-uint32_t prevTime = 0; // The time, in MS the device was last polled
+uint32_t connectionAttemptDelay = 500;  // Time in ms to wait between connection attempts to the sensor
+uint32_t prevTime = 0;                  // The time, in MS the device was last polled
 
 // Stores the value of the pressure and temperature the last time the sensor was polled
 double prevPressure = 0;
@@ -31,79 +50,73 @@ float heading, roll, pitch;
 float pressure_batt = 0;
 
 bool barometer_init(void);
-void packData_and_send(float roll,float pitch,float heading,float temperature,float pressure,float seaLevelPressure,float altitude,float correctedAltitude);
+
+void packData_and_send(float roll, float pitch, float heading, float temperature, float pressure, float seaLevelPressure, float altitude, float correctedAltitude);
+//void packData_and_send(SensorData sensorData);
 
 // Initializes the serial communication and the LoRa module
 void setup() {
-Serial.begin(115200);
-while (!Serial);
+  
+  Serial.begin(115200);
 
-// Init Pressure and temperature sensor BME280 ADDRESS (0x76)
-//if(!bme280.init()){.
-//    Serial.println("Device error!");
-//}
+  delay(1000);
+  // Info init about SW
+  Serial.println("Initializing Bentayga computer onboard");
 
-// Init IMU inertial sensor
-if (!IMU.begin()) {
-   Serial.println("Failed to initialize IMU!");
+  // GPS system init
+
+  // if (!GPS.begin()) {
+  //   Serial.println("Failed to initialize GPS!");
+  // }
+
+  // Init Pressure and temperature sensor BME280 ADDRESS (0x76)
+  //if(!bme280.init()){
+  //    Serial.println("Device error!");
+  //}
+
+  // Initializes the barometer MS5607 sensor and sets up its settings
+  barometerConnected = barometer_init();
+
+  // Init IMU inertial sensor
+  if (!IMU.begin()) {
+    Serial.println("Failed to initialize IMU!");
   }
 
-// Init LoRa RF
-if (!LoRa.begin(868E6)) {
-Serial.println("Starting LoRa failed!");
+  // Init LoRa RF
+  if (!LoRa.begin(868E6)) {
+    Serial.println("Starting LoRa failed!");
+  }
 
-}
+  LoRa.setTxPower(10);
+  LoRa.setSpreadingFactor(7);
 
-LoRa.setTxPower(10);
-LoRa.setSpreadingFactor(12);
-// Initializes the barometer sensor and sets up its settings
-barometerConnected = barometer_init();
-
-Serial.println("LoRa Sender");
+  Serial.println("LoRa Sender");
 }
 
 void loop() {
-  
+
+  SensorData sensorData;
+
   double pressure = 0;
   double temperature = 0;
   double altitude = 0;
   double correctedAltitude = 0;
-  
-//  if(bme280.init()){
-//       //get and print temperatures
-//        Serial.print("Temp batt: ");
-//        Serial.print(bme280.getTemperature());
-//        Serial.print("C");//The unit for  Celsius because original arduino don't support speical symbols
-//        Serial.print(",");
-//        //get and print atmospheric pressure data
-//        Serial.print("Pressure batt: ");
-//        Serial.print(pressure = bme280.getPressure());
-//        Serial.print("Pa");
-//        Serial.print(",");
-//        //get and print altitude data
-//        Serial.print("Altitude batt: ");
-//        Serial.print(bme280.calcAltitude(pressure));
-//        Serial.print("m");
-//        Serial.print(",");
-//        //get and print humidity data
-//        Serial.print("Humidity batt: ");
-//        Serial.print(bme280.getHumidity());
-//        Serial.print("%");
-//        Serial.println();
-//        
-//    }else{
-//        Serial.println("Battery temperature sensor ERROR");
-//      }
-  
+
   // Get the IMU absolute values on Euler angles
-  if (IMU.eulerAnglesAvailable()){
-    IMU.readEulerAngles(heading, roll, pitch);
-  }
-  
+  if (IMU.eulerAnglesAvailable()) {
+    IMU.readEulerAngles(sensorData.heading, sensorData.roll, sensorData.pitch);
+  }else{
+    
+    sensorData.heading = -1.0;
+    sensorData.roll = -1.0;
+    sensorData.pitch = -1.0;
+    
+    }
+
   // Attempt to connect to barometer if not already connected
   if (!barometerConnected) {
     if (millis() - prevConnectionAttempt >= connectionAttemptDelay) {
-      if (barometer.connect()>0) {
+      if (barometer.connect() > 0) {
         Serial.println(F("Error connecting to barometer..."));
         prevConnectionAttempt = millis();
       } else {
@@ -114,80 +127,104 @@ void loop() {
   } else {
     // Check if the barometer has new data available
     barometer.checkUpdates();
-    if (barometer.isReady()) { 
-      temperature = barometer.GetTemp(); 
-      pressure = barometer.GetPres();
+    if (barometer.isReady()) {
+      sensorData.temperature = barometer.GetTemp();
+      sensorData.pressure = barometer.GetPres();
 
       // If the temperature or pressure have changed, update the variables and calculate new altitude data
-      if ((temperature != prevTemperature) || (pressure != prevPressure)) {
-        if (seaLevelPressure == 0) seaLevelPressure = barometer.getSeaLevel(pressure);
-        altitude = barometer.getAltitude();
-        correctedAltitude = barometer.getAltitude(true);
+      if ((sensorData.temperature != prevTemperature) || (sensorData.pressure != prevPressure)) {
+        if (sensorData.seaLevelPressure == 0) sensorData.seaLevelPressure = barometer.getSeaLevel(sensorData.pressure);
+        sensorData.altitude = barometer.getAltitude();
+        sensorData.correctedAltitude = barometer.getAltitude(true);
 
-        // Format sensor data into a string
-        String data = "Roll:" + String(roll) + "," + "Pitch:" + String(pitch) + "," + "Heading:" + String(heading) + "," "Temperature:" + String(temperature) + "," + "Pressure:" + String(pressure) + "," + "SLp:" + String(seaLevelPressure) + "," + "Altitude:" + String(altitude) + "," + "C. Altitude" + String(correctedAltitude);
-        //String data = String(roll) + "," + String(pitch) + "," + String(heading) + "," + String(temperature) + "," + String(pressure) + "," + String(seaLevelPressure) + "," + String(altitude) + "," + String(correctedAltitude);
+        packData_and_send(sensorData.roll, sensorData.pitch, sensorData.heading, sensorData.temperature, sensorData.pressure, sensorData.seaLevelPressure, sensorData.altitude, sensorData.correctedAltitude);
+        // Create a string data to see on SerialPort
+        String data = "Roll:" + String(sensorData.roll) + ","
+                      + "Pitch:" + String(sensorData.pitch) + ","
+                      + "Heading:" + String(sensorData.heading) + ","
+                      + "Temperature:" + String(sensorData.temperature) + ","
+                      + "Pressure:" + String(sensorData.pressure) + ","
+                      + "SLp:" + String(sensorData.seaLevelPressure) + ","
+                      + "Altitude:" + String(sensorData.altitude) + ","
+                      + "C. Altitude:" + String(sensorData.correctedAltitude) + ","
+                      + "Frame length:" + sizeof(sensorData);
+          //          + "Latitude:" + String(sensorData.latitude) + ","
+          //          + "Longitude:" + String(sensorData.longitude) + ","
+          //          + "Speed:" + String(sensorData.speed) + ","
+          //          + "NumSatellites:" + String(sensorData.numSatellites);
 
-        packData_and_send(roll,pitch,heading,temperature,pressure,seaLevelPressure,altitude,correctedAltitude);
+
+        // Send sensor data
+        //       packData_and_send(sensorData);
+
         // Print the formatted sensor data to the serial monitor
         Serial.print("Flight data: ");
         Serial.print(data);
-//        Serial.println();
+        Serial.println();
       }
     }
   }
-//  delay(10);
+  delay(10);
 }
 
-bool barometer_init(){
+bool barometer_init() {
 
-    barometer.setI2Caddr(I2C_LOW);
-    barometer.setSamples(MS5xxx_CMD_ADC_4096);
-    barometer.setDelay(1000);
-    barometer.setPressMbar();                                 //GetPress() return Pressure in Milibars (default preassure units)
-    barometer.setTempC();                                     //GetTemp() return temperature in Celcius (default temperature units)
-//    barometer.setTOffset(-200);
-    barometer.setPOffset(5);
-    
-    // Attempts to connect to the barometer sensor
-    if (barometer.connect() > 0) {
+  barometer.setI2Caddr(I2C_LOW);
+  barometer.setSamples(MS5xxx_CMD_ADC_4096);
+  barometer.setDelay(1000);
+  barometer.setPressMbar();  //GetPress() return Pressure in Milibars (default preassure units)
+  barometer.setTempC();      //GetTemp() return temperature in Celcius (default temperature units)
+                             //    barometer.setTOffset(-200);
+  barometer.setPOffset(5);
+
+  // Attempts to connect to the barometer sensor
+  if (barometer.connect() > 0) {
     Serial.println(F("Error connecting..."));
-    
+
     return false;
-    
-    } else {
+
+  } else {
     Serial.println(F("Connected to Baromete Sensor"));
-    
+
     return true;
-    
-    }
-  
   }
+}
 
+//void packData_and_send(SensorData sensorData) {
+//  LoRa.beginPacket();
+//  LoRa.write((uint8_t*)&sensorData, sizeof(SensorData));
+//  LoRa.endPacket();
+////  Serial.println("Packet sent!");
+//}
 
-void packData_and_send(float roll,float pitch,float heading,float temperature,float pressure,float seaLevelPressure,float altitude,float correctedAltitude) {
-  
+void packData_and_send(float roll, float pitch, float heading, float temperature, float pressure, float seaLevelPressure, float altitude, float correctedAltitude) {
+
   // Convert roll and pitch to int16_t
   int16_t rollInt = (int16_t)(roll * 10);
   int16_t pitchInt = (int16_t)(pitch * 10);
-  
+
   // Convert heading to int16_t
   int16_t headingInt = (int16_t)heading;
-  
+
   // Convert temperature to int16_t
   int16_t temperatureInt = (int16_t)(temperature * 10);
-  
+
   // Convert pressure to int32_t
   int32_t pressureInt = (int32_t)(pressure * 100);
-  
+
   // Convert sea level pressure, altitude, and corrected altitude to int32_t
   int32_t seaLevelPressureInt = (int32_t)(seaLevelPressure * 100);
   int32_t altitudeInt = (int32_t)(altitude * 100);
   int32_t correctedAltitudeInt = (int32_t)(correctedAltitude * 100);
-  
+
   // Create packet buffer with start and stop bytes, and add the formatted sensor data
   unsigned char buffer[] = {
-    0xFF, // start byte
+    0xFF,  // start byte
+           //    latitude >> 24, latitude >> 16, latitude >> 8, latitude & 0xFF,
+           //    longitude >> 24, longitude >> 16, longitude >> 8, longitude & 0xFF,
+           //    altitude >> 24, altitude >> 16, altitude >> 8, altitude & 0xFF,
+           //    speed >> 24, speed >> 16, speed >> 8, speed & 0xFF,
+           //    numSatellites,
     rollInt >> 8, rollInt & 0xFF,
     pitchInt >> 8, pitchInt & 0xFF,
     headingInt >> 8, headingInt & 0xFF,
@@ -196,15 +233,12 @@ void packData_and_send(float roll,float pitch,float heading,float temperature,fl
     seaLevelPressureInt >> 24, seaLevelPressureInt >> 16, seaLevelPressureInt >> 8, seaLevelPressureInt & 0xFF,
     altitudeInt >> 24, altitudeInt >> 16, altitudeInt >> 8, altitudeInt & 0xFF,
     correctedAltitudeInt >> 24, correctedAltitudeInt >> 16, correctedAltitudeInt >> 8, correctedAltitudeInt & 0xFF,
-    0xFE // stop byte
+    0xFE  // stop byte
   };
-    
+
   // Send packet via LoRa
   LoRa.beginPacket();
   LoRa.write(buffer, sizeof(buffer));
   LoRa.endPacket();
   Serial.println("Packet sent!");
-
 }
-
-  
