@@ -33,6 +33,16 @@ p4.setLabel('left', 'Altitud Barómetrica (meters)')
 p4.setLabel('bottom', 'Tiempo (s)')
 curve_altitude = p4.plot(pen='m')
 
+p5 = win.addPlot(row=2, col=0, title="Nivel de Intensidad de Señal")
+p5.setLabel('left', 'Nivel de Intensidad (dBm)')
+p5.setLabel('bottom', 'Tiempo (s)')
+curve_intensity = p5.plot(pen='b')
+
+p6 = win.addPlot(row=2, col=1, title="Relación Señal-Ruido (SNR)")
+p6.setLabel('left', 'SNR (dB)')
+p6.setLabel('bottom', 'Tiempo (s)')
+curve_snr = p6.plot(pen='g')
+
 # p5 = win.addPlot(row=1, col=0, title="Heading")
 # p5.setYRange(0, 360)
 # p5.setLabel('left', 'Heading (°)')
@@ -50,6 +60,9 @@ pressure_data = []
 temperature_data = []
 altitude_data = []
 heading_data = []
+intensity_data = []
+snr_data = []
+
 
 # Leer datos del puerto serie y graficarlos en tiempo real
 def update():
@@ -71,6 +84,8 @@ def update():
             pressure_data.append(float(values[4]))
             temperature_data.append(float(values[3]))
             altitude_data.append(float(values[5]))
+            intensity_data.append(float(values[-2]))
+            snr_data.append(float(values[-1]))
             
             # Actualizar las gráficas con los nuevos valores
             curve_roll.setData(time_data, roll_data)
@@ -78,6 +93,8 @@ def update():
             curve_pressure.setData(time_data, pressure_data)
             curve_temperature.setData(time_data, temperature_data)
             curve_altitude.setData(time_data, altitude_data)
+            curve_intensity.setData(time_data, intensity_data)
+            curve_snr.setData(time_data, snr_data)
             # curve_heading.setData(time_data, heading_data)
             QtGui.QGuiApplication.processEvents()
 
