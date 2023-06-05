@@ -7,7 +7,7 @@ Some Arduino code to identify and request the OneWire [DS18B20](https://www.anal
 Use libraries:
 
 - https://playground.arduino.cc/Learning/OneWire/
-- https://www.milesburton.com/w/index.php/Dallas_Temperature_Control_Library
+- https://www.milesburton.com/w/index.php/Dallas\_Temperature\_Control\_Library
 
 ---
 
@@ -22,11 +22,11 @@ Having the IDs of the sensor, it will request their temperatures
 
 ### [Temperature control](./temperature/tempsens_heatpad)
 
-Using the MOSFET [IRLB8721](https://www.infineon.com/cms/en/product/power/mosfet/n-channel/irlb8721/) to control the headmats.
+Using the MOSFET [IRLB8721](https://www.infineon.com/cms/en/product/power/mosfet/n-channel/irlb8721/) to control the heatmats.
 
 ![IRLB8721](irlb8721.png)
 
-Heatpads. https://es.rs-online.com/web/p/alfombrillas-calefactoras/0245512
+Heatpads: https://es.rs-online.com/web/p/alfombrillas-calefactoras/0245512
 
 
 
