@@ -11,13 +11,23 @@ Use libraries:
 
 ---
 
-### [Detect sensor ID](./temp_sensor/detect_ds1820_tempsens_id/)
+### [Detect sensor ID](./temperature/detect_ds1820_tempsens_id/)
 
 Get the sensor ID, better to have just one sensor to know the ID, because it will print all the sensors ID found
 
 
-### [Get sensor temperature](./temp_sensor/get_temp_ds18b20_wid/)
+### [Get sensor temperature](./temperature/get_temp_ds18b20_wid/)
 
 Having the IDs of the sensor, it will request their temperatures
+
+### [Temperature control](./temperature/tempsens_heatpad)
+
+Using the MOSFET [IRLB8721](https://www.infineon.com/cms/en/product/power/mosfet/n-channel/irlb8721/) to control the headmats.
+
+![IRLB8721](irlb8721.png)
+
+Heatpads. https://es.rs-online.com/web/p/alfombrillas-calefactoras/0245512
+
+
 
 
