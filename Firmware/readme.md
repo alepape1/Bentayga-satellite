@@ -1,3 +1,4 @@
+---
 
 ## [Temperature sensors](./temp_sensor)
 
@@ -10,12 +11,12 @@ Use libraries:
 
 ---
 
-### [Detect sensor ID](./detect_ds1820_tempsens_id/)
+### [Detect sensor ID](./temp_sensor/detect_ds1820_tempsens_id/)
 
 Get the sensor ID, better to have just one sensor to know the ID, because it will print all the sensors ID found
 
 
-### [Get sensor temperature](./get_temp_ds18b20_wid/)
+### [Get sensor temperature](./temp_sensor/get_temp_ds18b20_wid/)
 
 Having the IDs of the sensor, it will request their temperatures
 
