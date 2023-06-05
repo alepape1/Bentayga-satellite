@@ -8,9 +8,15 @@
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 9;
 
+// Resolution can be 9,10,11,12, the higher the slower
+// default seems to be the last that has been set.
+// with  9 it seems that it is 0.50 C resolution
+// with 10 it seems that it is 0.25 C resolution
+const uint8_t SENSOR_BIT_RESOL = 9;
+
 // Instance to classes OneWire y DallasTemperature
 OneWire OneWireObj(PIN_ONEWIRE);
-DallasTemperature sensorDS18B20(&OneWireObj);
+DallasTemperature sensor_DS18(&OneWireObj);
 
 // print a One Wire device address
 // a DeviceAddress is a 8 byte array
@@ -27,12 +33,22 @@ void prnt_dev_addr(DeviceAddress addr){
 void setup() {
   // Init serial monitor y and temperature sensor DS18B20
   Serial.begin(9600);
-  sensorDS18B20.begin();
+  sensor_DS18.begin();
+
+  uint8_t resolution = sensor_DS18.getResolution();
+  Serial.print("Initial resolution: ");
+  Serial.print(resolution);
+  Serial.println("bits");
+  sensor_DS18.setResolution(SENSOR_BIT_RESOL);
+  resolution = sensor_DS18.getResolution();
+  Serial.print("New resolution: ");
+  Serial.print(resolution);
+  Serial.println("bits");
 
   // Searching sensors
   Serial.println("Searching temp sensors...");
   Serial.print("Found: ");
-  int numSensorsFound = sensorDS18B20.getDeviceCount();
+  int numSensorsFound = sensor_DS18.getDeviceCount();
   Serial.print(numSensorsFound);
   Serial.println(" sensors");
   // If found any, show address
@@ -40,7 +56,7 @@ void setup() {
     for (int sens_i=0; sens_i<numSensorsFound; sens_i++) { 
       DeviceAddress sens_temp_addr; // 8 byte array (uint8_t)
       // get adddres of the sensor
-      sensorDS18B20.getAddress(sens_temp_addr, sens_i);
+      sensor_DS18.getAddress(sens_temp_addr, sens_i);
       Serial.print("Sensor address: ");
       prnt_dev_addr (sens_temp_addr); // print the address
     }
