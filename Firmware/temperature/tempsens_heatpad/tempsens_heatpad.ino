@@ -11,7 +11,7 @@ const int PIN_HEATPAD = 10; // Pin where the MOSFET of the heatpad will be. Shou
 
 const int MAX_DIFF_SENS_TEMP = 5; // if temperature is larger than this, it might be a problem
 // temperature from which the heatpad will be ON. Should be low, but this is for testing at room temperature
-const int MIN_TEMP_START = 40;
+const int MIN_TEMP_START = 40;  // CHANGE THIS
 // If this low temperature is reached, the heatpads will be at maximum temperature
 const int MIN_TEMP_EXTREME = MIN_TEMP_START - 10;
 
@@ -60,12 +60,12 @@ void setup() {
     Serial.begin(9600);
     sensor_DS18.begin();
     uint8_t resolution = sensor_DS18.getResolution();
-    Serial.print("Resolution: ");
+    Serial.print("Initial resolution: ");
     Serial.print(resolution);
     Serial.println("bits");
     sensor_DS18.setResolution(SENSOR_BIT_RESOL);
     resolution = sensor_DS18.getResolution();
-    Serial.print("Resolution: ");
+    Serial.print("New resolution: ");
     Serial.print(resolution);
     Serial.println("bits");
 
@@ -101,13 +101,13 @@ void loop() {
   sensor_DS18.requestTemperatures();
  
   float board_tsens_val = sensor_DS18.getTempC(board_tsens_addr);
-  Serial.print("Board sensor:     ");
+  Serial.print("Board sensor:       ");
   Serial.print(board_tsens_val);
   Serial.println(" C");
   float waterp_tsens_val = sensor_DS18.getTempC(waterp_tsens_addr);
-  Serial.print("Waterprof sensor: ");
+  Serial.print("Waterprof sensor:   ");
   Serial.print(waterp_tsens_val);
-  Serial.println(" C\n");
+  Serial.println(" C");
 
   // temperature difference between the two sensors
   float diff_sens_temp = abs(board_tsens_val -waterp_tsens_val);
@@ -118,13 +118,36 @@ void loop() {
   } else {
     float avg_temp = (board_tsens_val + waterp_tsens_val)/2;
     Serial.print("Average temperature ");
-    Serial.println(avg_temp);
+    Serial.print(avg_temp);
+    Serial.println(" C");
     // Now it can be set the proportional control, but for now, just 2 limits
     if (avg_temp < MIN_TEMP_EXTREME) {
+      Serial.println("Average temperature too low, less than Min Extreme temperature: ");
+      Serial.print(avg_temp);
+      Serial.print(" < ");
+      Serial.print(MIN_TEMP_EXTREME); // -20
+      Serial.println(" (extr min T)");
+      Serial.println("Heatpad FULL ON\n");
       digitalWrite (PIN_HEATPAD, HIGH); // heatpad at full ON
     } else if (avg_temp < MIN_TEMP_START) {
-      analogWrite (PIN_HEATPAD, 128); // heatpad at half
+      Serial.println("Average temperature is lower than mininimum but higher than Min Extreme temperature: ");
+      Serial.print(MIN_TEMP_EXTREME); // -20
+      Serial.print(" (extr min T) < ");
+      Serial.print(avg_temp);  // -15
+      Serial.print(" < ");
+      Serial.print(MIN_TEMP_START); // -10
+      Serial.println(" (min T)");
+      Serial.println("Heatpad HALF ON\n");
+      analogWrite (PIN_HEATPAD, 128); // heatpad at half (255/2)
     } else {
+      Serial.println("Average temperature is higher than mininimum temperatures: ");
+      Serial.print(avg_temp);
+      Serial.print(" > ");
+      Serial.print(MIN_TEMP_START);
+      Serial.print(" (min T) > ");      
+      Serial.print(MIN_TEMP_EXTREME);
+      Serial.println(" (extr min T)");
+      Serial.println("Heatpad OFF\n");
       digitalWrite (PIN_HEATPAD, LOW); // heatpad OFF
     }
 
