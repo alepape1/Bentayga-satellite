@@ -8,7 +8,7 @@ Arduino code to identify and request temperature from the OneWire
 Use libraries:
 
 - https://playground.arduino.cc/Learning/OneWire
-- https://www.milesburton.com/w/index.php/Dallas\_Temperature\_Control\_Library
+- https://www.milesburton.com/w/index.php/Dallas_Temperature_Control_Library
 
 ---
 
@@ -42,7 +42,10 @@ The connections of the MOSFET are the following:
  - Source (S) goes to the GND
  - Drain (D) goes to one of the wires of the heatpad, the other wire of the heatpad goes to the external battery. We have connected two heatpads in parallel, since the MOSFET has an absolute maximum continous drain current of 62A at VGS=10V and T=25C
 
+**This code is for a battery of 12V or less**. We are using a 7.2V or 7.4V battery. In case you use a 14V battery you have to use PWM (analogueWrite) for the Full-ON cases, and have a maximum value of 212 (and test it). I think it might be a good idea to use the 14V battery with the PWM.
+
 The battery GND is connected with the Arduino GND.
+
 
 
 ![IRLB8721](irlb8721.png)
