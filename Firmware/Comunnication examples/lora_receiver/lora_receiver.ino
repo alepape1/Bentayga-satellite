@@ -5,7 +5,7 @@
 void decodePacket(unsigned char* buffer, size_t bufferSize);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial);
 
   Serial.println("LoRa Receiver");

@@ -28,10 +28,10 @@ p3.setLabel('left', 'Temperatura (°C)')
 p3.setLabel('bottom', 'Tiempo (s)')
 curve_temperature = p3.plot(pen='b')
 
-p4 = win.addPlot(row=1, col=1, title="Altitud Corregida")
-p4.setLabel('left', 'Altitud Barómetrica (meters)')
+p4 = win.addPlot(row=1, col=1, title="Altitud GPS")
+p4.setLabel('left', 'Altitud GPS (meters)')
 p4.setLabel('bottom', 'Tiempo (s)')
-curve_altitude = p4.plot(pen='m')
+curve_GpsAltitude = p4.plot(pen='m')
 
 p5 = win.addPlot(row=2, col=0, title="Nivel de Intensidad de Señal")
 p5.setLabel('left', 'Nivel de Intensidad (dBm)')
@@ -43,23 +43,29 @@ p6.setLabel('left', 'SNR (dB)')
 p6.setLabel('bottom', 'Tiempo (s)')
 curve_snr = p6.plot(pen='g')
 
-# p5 = win.addPlot(row=1, col=0, title="Heading")
-# p5.setYRange(0, 360)
-# p5.setLabel('left', 'Heading (°)')
-# p5.setLabel('bottom', 'Tiempo (s)')
-# curve_heading = p5.plot(pen='b')
+p7 = win.addPlot(row=0, col=2, title="Heading")
+p7.setYRange(0, 360)
+p7.setLabel('left', 'Heading (°)')
+p7.setLabel('bottom', 'Tiempo (s)')
+curve_heading = p7.plot(pen='y')
 
 # Abrir conexión al puerto serie
-ser = serial.Serial('COM9', 115200)
+ser = serial.Serial('COM14', 115200)
 
 # Crear listas para almacenar los valores de los datos
+# Formato del frame recivido : roll,pitch,heading,temperature,humidity,pressure,GpsAltitude,latitude,longitude,speed,numSatellites
 time_data = []
 roll_data = []
 pitch_data = []
-pressure_data = []
-temperature_data = []
-altitude_data = []
 heading_data = []
+temperature_data = []
+humidity_data = []
+pressure_data = []
+GpsAltitude_data = []
+latitude_data = []
+longitude_data = []
+speed_data = []
+numSatellites_data = []
 intensity_data = []
 snr_data = []
 
@@ -73,7 +79,7 @@ def update():
         # Separar los valores de la línea utilizando comas
         values = line.split(',')
         # Comprobar si la línea contiene el número correcto de valores
-        if len(values) == 10:
+        if len(values) == 13:
             # Imprimir la línea de datos en la consola
             print(line)
             # Convertir los valores a números y agregarlos a las listas de datos
@@ -81,21 +87,26 @@ def update():
             roll_data.append(float(values[0]))
             pitch_data.append(float(values[1]))
             heading_data.append(float(values[2]))
-            pressure_data.append(float(values[4]))
             temperature_data.append(float(values[3]))
-            altitude_data.append(float(values[5]))
-            intensity_data.append(float(values[-2]))
-            snr_data.append(float(values[-1]))
+            humidity_data.append(float(values[4]))
+            pressure_data.append(float(values[5]))
+            GpsAltitude_data.append(float(values[6]))
+            latitude_data.append(float(values[7]))
+            longitude_data.append(float(values[8]))
+            speed_data.append(float(values[9]))
+            numSatellites_data.append(int(values[10]))
+            intensity_data.append(float(values[11]))
+            snr_data.append(float(values[12]))
             
             # Actualizar las gráficas con los nuevos valores
             curve_roll.setData(time_data, roll_data)
             curve_pitch.setData(time_data, pitch_data)
             curve_pressure.setData(time_data, pressure_data)
             curve_temperature.setData(time_data, temperature_data)
-            curve_altitude.setData(time_data, altitude_data)
+            curve_GpsAltitude.setData(time_data, GpsAltitude_data)
             curve_intensity.setData(time_data, intensity_data)
             curve_snr.setData(time_data, snr_data)
-            # curve_heading.setData(time_data, heading_data)
+            curve_heading.setData(time_data, heading_data)
             QtGui.QGuiApplication.processEvents()
 
 # Configuración del temporizador para actualizar los gráficos
