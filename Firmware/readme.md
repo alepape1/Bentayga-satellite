@@ -1,6 +1,6 @@
 
 
-## [Temperature sensors](./temp_sensor)
+## [Temperature sensors](./temperature)
 
 Arduino code to identify and request temperature from the OneWire
  [DS18B20](https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf) temperature sensor, and to control the heatmats
