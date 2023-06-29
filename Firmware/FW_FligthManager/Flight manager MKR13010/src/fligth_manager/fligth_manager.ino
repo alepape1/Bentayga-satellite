@@ -5,6 +5,8 @@
 #include <LoRa.h>
 #include "Seeed_BME280.h"
 #include <Arduino_MKRGPS.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 
 // Initializes the barometer sensor and sets up the connection status variable

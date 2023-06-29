@@ -6,13 +6,13 @@
 #include <DallasTemperature.h>
 
 // Pin were the 1-Wire bus with the temp sensors DS18B20
-const int PIN_ONEWIRE = 9;
+const int PIN_ONEWIRE = 1;
 
 // Resolution can be 9,10,11,12, the higher the slower
 // default seems to be the last that has been set.
 // with  9 it seems that it is 0.50 C resolution
 // with 10 it seems that it is 0.25 C resolution
-const uint8_t SENSOR_BIT_RESOL = 9;
+const uint8_t SENSOR_BIT_RESOL =9;
 
 // Instance to classes OneWire y DallasTemperature
 OneWire OneWireObj(PIN_ONEWIRE);
@@ -33,6 +33,9 @@ void prnt_dev_addr(DeviceAddress addr){
 void setup() {
   // Init serial monitor y and temperature sensor DS18B20
   Serial.begin(9600);
+  delay(1000);
+  Serial.println("INIT HERE");
+  
   sensor_DS18.begin();
 
   uint8_t resolution = sensor_DS18.getResolution();
@@ -64,4 +67,6 @@ void setup() {
 }
  
 void loop() {
+
+  Serial.println("Hell");
 }
