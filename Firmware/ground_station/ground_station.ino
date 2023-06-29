@@ -12,6 +12,8 @@ struct SensorData {
   float roll;
   float pitch;
   float heading;
+  float battTemp;
+  float battTemp2;
   float temperature;
   float pressure;
   float humidity;
@@ -20,6 +22,12 @@ struct SensorData {
   float longitude;
   float speed;
   uint8_t numSatellites;
+  int16_t year;
+  uint8_t month;
+  uint8_t day;
+  uint8_t hour;
+  uint8_t minute;
+  uint8_t second;
 };
 
 // Initializes the serial communication and the LoRa module
@@ -46,11 +54,25 @@ void loop() {
     // Read the received data into the sensorData structure
     if (LoRa.readBytes((uint8_t*)&sensorData, sizeof(SensorData)) == sizeof(SensorData)) {
       // Process the received sensor data
-      Serial.print(sensorData.roll);
+      Serial.print(sensorData.year);
+      Serial.print(",");
+      Serial.print(sensorData.month);
+      Serial.print(",");
+      Serial.print(sensorData.day);
+      Serial.print(",");
+      Serial.print(sensorData.hour);
+      Serial.print(",");
+      Serial.print(sensorData.minute);
+      Serial.print(",");
+      Serial.print(sensorData.second);
       Serial.print(",");
       Serial.print(sensorData.pitch);
       Serial.print(",");
       Serial.print(sensorData.heading);
+      Serial.print(",");
+      Serial.print(sensorData.battTemp);
+      Serial.print(",");
+      Serial.print(sensorData.battTemp2);
       Serial.print(",");
       Serial.print(sensorData.temperature);
       Serial.print(",");
