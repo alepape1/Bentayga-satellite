@@ -12,6 +12,12 @@ This code requires the following libraries:
 - MKRIMU.h
 - LoRa.h
 
+Using the Arduino Library manager, search and install the following packages:
+
+* BNO055 - Adafruit; and it dependencies.
+* BM280 - Adafruit; and it dependencies.
+* Groove RTC DS1307 - Speeed Studio
+
 ## Setup
 
 The Flight Manager should be connected to an IMU and a barometric pressure sensor. The LoRa module should also be properly connected.
