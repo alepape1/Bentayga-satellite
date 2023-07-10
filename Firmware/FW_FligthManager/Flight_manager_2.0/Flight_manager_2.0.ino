@@ -14,7 +14,7 @@
 #define SAMPLE_SENSOR_TIME 2000
 #define SEND_DATA_DELAY 10000
 #define WRITE_SD_DATA_DELAY 10000
-#define WATCHDOG_TIMEOUT 2000
+#define WATCHDOG_TIMEOUT 12000
 
 #define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
@@ -22,9 +22,9 @@
 const int PIN_ONEWIRE = 2;
 
 //Information camera capturing and memory size available
-const int GPIO1 = 5;  // Puerto GPIO para señal 1
-const int GPIO2 = 3;  // Puerto GPIO para señal 2
-const int GPIO3 = 4;  // Puerto GPIO para señal de capacidad de memoria
+const int GPIO_C = 5;  // GPIO pin for the camera capturing signal
+const int GPIO_LSB = 6;  // GPIO pin for the less significative bit of the memory capacity signal
+const int GPIO_MSB = 7;  // GPIO pin for the less significative bit of the memory capacity signal
 
 // Resolution can be 9,10,11,12, the higher the slower
 // default seems to be the last that has been set.
@@ -100,9 +100,9 @@ void setup() {
   delay(2000);
 
   //GPIO configuration for camera info flags
-  pinMode(GPIO1, INPUT_PULLUP);
-  pinMode(GPIO2, INPUT_PULLUP);
-  pinMode(GPIO3, INPUT_PULLUP);
+  pinMode(GPIO_C, INPUT_PULLUP);
+  pinMode(GPIO_LSB, INPUT_PULLUP);
+  pinMode(GPIO_MSB, INPUT_PULLUP);
 
   clock.begin();
 
@@ -168,7 +168,6 @@ void setup() {
 
 void loop() {
 
-
   IMU_get_values(sensorData);
 
   if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
@@ -189,6 +188,7 @@ void loop() {
     sensorData.numSatellites = myGNSS.getSIV();
 
     sensorData.camera_info = get_camera_info();
+
     if (update_time){
       if (myGNSS.getTimeValid()) {
       
@@ -282,7 +282,6 @@ void IMU_get_values(SensorData &sensorData) {
   sensorData.roll = orientationData.orientation.y;
   sensorData.pitch = orientationData.orientation.z;
   sensorData.heading = orientationData.orientation.x;
-
 
 }
 
@@ -397,12 +396,13 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
 uint8_t get_camera_info(){
 
   // Leer los valores de las señales de los puertos GPIO
-  int signal1 = digitalRead(GPIO1);
-  int signal2 = digitalRead(GPIO2);    
-  int memoryCapacity = digitalRead(GPIO3);
+  int cameraFlag = digitalRead(GPIO_C);
+  int memoryCapacityLSB = digitalRead(GPIO_LSB);    
+  int memoryCapacityMSB = digitalRead(GPIO_MSB);
 
   // Codificar los valores en un byte
-  byte encodedData = (memoryCapacity << 4) | (signal2 << 1) | signal1;
+  byte encodedData = 0x00;
+  encodedData =  encodedData | (memoryCapacityMSB << 5) | (memoryCapacityLSB << 4) | cameraFlag;
 
   // Imprimir el valor codificado en binario
   //Serial.println(encodedData, HEX);
