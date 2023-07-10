@@ -12,14 +12,19 @@
 
 
 #define SAMPLE_SENSOR_TIME 2000
-#define SEND_DATA_DELAY 5000
+#define SEND_DATA_DELAY 10000
 #define WRITE_SD_DATA_DELAY 10000
-#define WATCHDOG_TIMEOUT 15000
+#define WATCHDOG_TIMEOUT 2000
 
-#define fileLog "test1.txt"
+#define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 2;
+
+//Information camera capturing and memory size available
+const int GPIO1 = 5;  // Puerto GPIO para señal 1
+const int GPIO2 = 3;  // Puerto GPIO para señal 2
+const int GPIO3 = 4;  // Puerto GPIO para señal de capacidad de memoria
 
 // Resolution can be 9,10,11,12, the higher the slower
 // default seems to be the last that has been set.
@@ -58,6 +63,7 @@ struct SensorData {
   uint8_t hour;
   uint8_t minute;
   uint8_t second;
+  uint8_t camera_info;
 };
 
 
@@ -92,6 +98,12 @@ void setup() {
   Watchdog.disable(); 
   Serial.begin(115200);
   delay(2000);
+
+  //GPIO configuration for camera info flags
+  pinMode(GPIO1, INPUT_PULLUP);
+  pinMode(GPIO2, INPUT_PULLUP);
+  pinMode(GPIO3, INPUT_PULLUP);
+
   clock.begin();
 
   Serial.println("Bentayga I. System init");
@@ -176,7 +188,9 @@ void loop() {
     sensorData.speed = myGNSS.getGroundSpeed() / 1000.0;
     sensorData.numSatellites = myGNSS.getSIV();
 
-    if (myGNSS.getTimeValid() && update_time) {
+    sensorData.camera_info = get_camera_info();
+    if (update_time){
+      if (myGNSS.getTimeValid()) {
       
       clock.fillByYMD(myGNSS.getYear(), myGNSS.getMonth(), myGNSS.getDay()); //Jan 19,2013
       clock.fillByHMS(myGNSS.getHour(), myGNSS.getMinute(), myGNSS.getSecond()); //15:28 30"
@@ -184,8 +198,8 @@ void loop() {
       clock.setTime();//write time to the RTC chip
       Serial.println("TIME GPS SYNC OK");
       update_time= false;
+      }
     }
-
 
     sample_counter = millis();
 
@@ -214,7 +228,8 @@ void loop() {
     "Latitude:" + String(sensorData.latitude, 6) + "," +
     "Longitude:" + String(sensorData.longitude, 6) + "," +
     "Speed:" + String(sensorData.speed) + "," +
-    "NumSatellites:" + String(sensorData.numSatellites);
+    "NumSatellites:" + String(sensorData.numSatellites) + "," +
+    "Camera:" + String(sensorData.camera_info);
 
   if(millis() - send_data_timer >= SEND_DATA_DELAY){
   
@@ -371,9 +386,26 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
   dataFile.print(sensorData.speed);
   dataFile.print(",");
   dataFile.println(sensorData.numSatellites);
+  dataFile.print(",");
+  dataFile.println(sensorData.camera_info);
 
 
   dataFile.close();
 
 }
 
+uint8_t get_camera_info(){
+
+  // Leer los valores de las señales de los puertos GPIO
+  int signal1 = digitalRead(GPIO1);
+  int signal2 = digitalRead(GPIO2);    
+  int memoryCapacity = digitalRead(GPIO3);
+
+  // Codificar los valores en un byte
+  byte encodedData = (memoryCapacity << 4) | (signal2 << 1) | signal1;
+
+  // Imprimir el valor codificado en binario
+  //Serial.println(encodedData, HEX);
+  return encodedData;
+
+}
