@@ -1,0 +1,7 @@
+Si encienden la Jetson y no está capturando es que ha fallado algo de system_setup.py
+
+sudo journalctl | grep execute
+
+Si la memoria se llena, no hace nada 
+rm de la carpeta outputs cada vez que se inicie el programa
+
