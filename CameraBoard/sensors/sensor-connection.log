@@ -1,0 +1,42 @@
+2023-06-29 12:17:59,652 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2023-06-29 12:18:30,223 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2023-06-29 12:18:31,400 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2023-06-29 12:18:31,401 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2023-06-29 12:18:31,464 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2023-06-29 12:18:31,464 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2023-06-29 12:18:52,718 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2023-06-29 12:18:53,736 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2023-06-29 12:18:53,737 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2023-06-29 12:18:53,779 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2023-06-29 12:18:53,780 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2023-06-29 12:18:54,545 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2023-06-29 12:22:31,756 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2023-06-29 12:22:32,807 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2023-06-29 12:22:32,808 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2023-06-29 12:22:32,877 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2023-06-29 12:22:32,878 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2023-06-29 12:22:33,641 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2023-06-29 12:22:50,719 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2023-06-29 12:22:51,738 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2023-06-29 12:22:51,739 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2023-06-29 12:22:51,781 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2023-06-29 12:22:51,782 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2023-06-29 12:22:52,559 [INFO](detect_sensors.py@main126MainThread):Succeed!
+2023-06-29 12:23:18,256 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2023-06-29 12:23:19,275 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2023-06-29 12:23:19,275 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2023-06-29 12:23:19,316 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2023-06-29 12:23:19,317 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2023-06-29 12:23:20,085 [INFO](detect_sensors.py@main126MainThread):Succeed!
+2023-06-29 12:25:09,266 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2023-06-29 12:25:10,301 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2023-06-29 12:25:10,302 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2023-06-29 12:25:10,370 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2023-06-29 12:25:10,371 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2023-06-29 12:25:11,160 [INFO](detect_sensors.py@main126MainThread):Succeed!
+2023-06-29 12:25:58,487 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2023-06-29 12:25:59,528 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2023-06-29 12:25:59,528 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2023-06-29 12:25:59,584 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2023-06-29 12:25:59,585 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2023-06-29 12:26:00,518 [INFO](detect_sensors.py@main126MainThread):Succeed!

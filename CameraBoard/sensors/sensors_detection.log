@@ -1,0 +1,344 @@
+2023-06-29 12:30:53,249 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2023-06-29 12:30:54,270 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2023-06-29 12:30:54,270 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2023-06-29 12:30:54,312 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2023-06-29 12:30:54,313 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2023-06-29 12:30:55,079 [INFO](detect_sensors.py@main126MainThread):Succeed!
+2021-12-10 09:18:45,638 [INFO](detect_sensors.py@main104MainThread):Checking if the camera is connected.
+2021-12-10 09:18:46,811 [INFO](detect_sensors.py@main110MainThread):Succeed!
+2021-12-10 09:18:46,812 [INFO](detect_sensors.py@main112MainThread):Allowing system to use the GPIO.
+2021-12-10 09:18:46,875 [INFO](detect_sensors.py@main118MainThread):Succeed!
+2021-12-10 09:18:46,876 [INFO](detect_sensors.py@main120MainThread):Checking if the RTC is connected.
+2021-12-10 09:18:47,655 [INFO](detect_sensors.py@main126MainThread):Succeed!
+2021-12-10 09:20:29,091 [INFO](detect_sensors.py@main106MainThread):Checking if the camera is connected.
+2021-12-10 09:20:30,173 [INFO](detect_sensors.py@main112MainThread):Succeed!
+2021-12-10 09:20:30,174 [INFO](detect_sensors.py@main114MainThread):Allowing system to use the GPIO.
+2021-12-10 09:20:30,230 [INFO](detect_sensors.py@main120MainThread):Succeed!
+2021-12-10 09:20:30,231 [INFO](detect_sensors.py@main122MainThread):Checking if the RTC is connected.
+2021-12-10 09:20:31,003 [INFO](detect_sensors.py@main128MainThread):Succeed!
+2021-12-10 09:23:13,221 [INFO](detect_sensors.py@main107MainThread):Checking if the camera is connected.
+2021-12-10 09:23:14,306 [INFO](detect_sensors.py@main113MainThread):Succeed!
+2021-12-10 09:23:14,307 [INFO](detect_sensors.py@main115MainThread):Allowing system to use the GPIO.
+2021-12-10 09:23:14,355 [INFO](detect_sensors.py@main121MainThread):Succeed!
+2021-12-10 09:23:14,356 [INFO](detect_sensors.py@main123MainThread):Checking if the RTC is connected.
+2021-12-10 09:23:15,126 [INFO](detect_sensors.py@main129MainThread):Succeed!
+2021-12-10 09:24:55,370 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:24:56,468 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:24:56,469 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:24:56,518 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:24:56,518 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:24:57,286 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 00:09:20,383 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 00:09:21,448 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 00:09:21,449 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 00:09:21,492 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 00:09:21,493 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 00:09:22,273 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 00:12:07,979 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 00:12:09,195 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 00:12:09,197 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 00:12:09,410 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 00:12:09,411 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 00:12:10,192 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:19:02,114 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:19:03,174 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:19:03,175 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:19:03,243 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:19:03,244 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:19:04,026 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:30:09,798 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:30:10,886 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:30:10,887 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:30:10,971 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:30:10,971 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:30:11,753 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:15:58,543 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:16:00,617 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:16:00,618 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:01,180 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:16:01,180 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:02,829 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:16:04,483 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:16:06,023 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:16:06,023 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:06,346 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:16:06,346 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,215 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:16:04,730 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:16:05,913 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:16:05,914 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:06,955 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:16:06,955 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,569 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:16:02,089 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,626 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:16:04,626 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:04,984 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:16:04,985 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:05,987 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2021-12-10 09:16:00,532 [INFO](detect_sensors.py@main103MainThread):Checking if the camera is connected.
+2021-12-10 09:16:02,251 [INFO](detect_sensors.py@main109MainThread):Succeed!
+2021-12-10 09:16:02,252 [INFO](detect_sensors.py@main111MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:02,915 [INFO](detect_sensors.py@main117MainThread):Succeed!
+2021-12-10 09:16:02,915 [INFO](detect_sensors.py@main119MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:04,096 [INFO](detect_sensors.py@main125MainThread):Succeed!
+2023-06-30 11:36:02,493 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2023-06-30 11:36:03,511 [INFO](setup_system.py@main135MainThread):Succeed!
+2023-06-30 11:36:03,512 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2023-06-30 11:36:03,577 [INFO](setup_system.py@main143MainThread):Succeed!
+2023-06-30 11:36:03,578 [INFO](setup_system.py@main146MainThread):Allowing script to read and write in the USB.
+2023-06-30 11:36:03,600 [INFO](setup_system.py@main152MainThread):Succeed!
+2023-06-30 11:36:03,600 [INFO](setup_system.py@main154MainThread):Checking if the RTC is connected.
+2023-06-30 11:36:04,366 [INFO](setup_system.py@main160MainThread):Succeed!
+2021-12-10 09:16:05,777 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:07,387 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:07,388 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:07,557 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:07,558 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,836 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:15:59,448 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:01,828 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:01,828 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:02,302 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:02,303 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:03,099 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:05,880 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:07,788 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:07,790 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:08,295 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:08,296 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:09,628 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:04,124 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:06,448 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:06,450 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:06,815 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:06,815 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,003 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:07,526 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:08,856 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:08,860 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:09,416 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:09,417 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:10,241 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:56:26,785 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:56:28,030 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:56:28,031 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:56:28,186 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:56:28,187 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:56:28,965 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:07,177 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:09,018 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:09,020 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:10,014 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:10,014 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:11,373 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:33:55,145 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:33:56,198 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:33:56,199 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:33:56,264 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:33:56,264 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:33:57,032 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:10:48,480 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:10:49,743 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:10:49,744 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:10:49,821 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:10:49,821 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:10:50,597 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:12:06,948 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:12:08,026 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:12:08,027 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:12:08,072 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:12:08,072 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:12:08,845 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:12:42,177 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:12:43,264 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:12:43,265 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:12:43,315 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:12:43,315 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:12:44,086 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:14:15,421 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:14:16,677 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:14:16,678 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:14:16,866 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:14:16,867 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:14:17,648 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:24:32,717 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:24:34,445 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:24:34,446 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:24:34,532 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:24:34,532 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:24:35,314 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:25:06,269 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:25:07,819 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:25:07,820 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:25:07,863 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:25:07,864 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:25:08,635 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 10:25:45,759 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 10:25:47,377 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 10:25:47,378 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 10:25:47,429 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 10:25:47,429 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 10:25:48,210 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:04,290 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:06,319 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:06,320 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:06,747 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:06,748 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,018 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:08,838 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:10,824 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:10,826 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:11,090 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:11,091 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:12,491 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:21:11,916 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:21:13,075 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:21:13,075 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:21:13,129 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:21:13,130 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:21:13,910 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:31,615 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:32,904 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:32,905 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:33,000 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:33,000 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:33,784 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:03,064 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,771 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:04,772 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:05,277 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:05,277 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:06,252 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:33:09,443 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:33:10,654 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:33:10,656 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:33:10,712 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:33:10,713 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:33:11,495 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:01,511 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,123 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:04,125 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:04,696 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:04,697 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:06,180 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:27:13,181 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:27:14,423 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:27:14,425 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:27:14,499 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:27:14,500 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:27:15,276 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:23,519 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:24,602 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:24,604 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:24,652 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:24,653 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:25,428 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:32:04,647 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:32:05,768 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:32:05,769 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:32:05,845 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:32:05,846 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:32:06,618 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:36:01,083 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:36:02,183 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:36:02,185 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:36:02,237 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:36:02,237 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:36:03,009 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:50:23,042 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:50:24,159 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:50:24,160 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:50:24,223 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:50:24,224 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:50:24,997 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:03,861 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:05,602 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:05,603 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:05,816 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:05,816 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:06,655 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:26:52,297 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:26:53,520 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:26:53,523 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:26:53,580 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:26:53,580 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:26:54,358 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:10,114 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:11,220 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:11,222 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:11,289 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:11,290 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:12,061 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:02,174 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,011 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:04,013 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:04,829 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:04,829 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:05,968 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:24:51,407 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:24:52,555 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:24:52,556 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:24:52,624 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:24:52,624 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:24:53,391 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:32,180 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:33,364 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:33,365 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:33,407 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:33,407 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:34,180 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:15:59,095 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:00,920 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:00,922 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:01,095 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:01,095 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:02,353 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:04,740 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:06,655 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:06,656 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:07,602 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:07,602 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:08,595 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:06,382 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:07,478 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:07,479 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:07,522 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:07,522 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:08,295 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:28:52,713 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:28:53,813 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:28:53,815 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:28:53,867 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:28:53,868 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:28:54,638 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:04,167 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:06,274 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:06,275 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:06,397 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:06,397 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:07,224 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:01,896 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,333 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:04,335 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:04,851 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:04,851 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:06,101 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:19:00,488 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:19:01,588 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:19:01,589 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:19:01,634 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:19:01,635 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:19:02,407 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:02,839 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:05,552 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:05,553 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:05,928 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:05,928 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:06,813 [INFO](setup_system.py@main151MainThread):Succeed!
+2021-12-10 09:16:02,029 [INFO](setup_system.py@main129MainThread):Checking if the camera is connected.
+2021-12-10 09:16:04,502 [INFO](setup_system.py@main135MainThread):Succeed!
+2021-12-10 09:16:04,503 [INFO](setup_system.py@main137MainThread):Allowing system to use the GPIO.
+2021-12-10 09:16:04,978 [INFO](setup_system.py@main143MainThread):Succeed!
+2021-12-10 09:16:04,978 [INFO](setup_system.py@main145MainThread):Checking if the RTC is connected.
+2021-12-10 09:16:07,008 [INFO](setup_system.py@main151MainThread):Succeed!
