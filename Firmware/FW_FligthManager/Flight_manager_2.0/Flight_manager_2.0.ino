@@ -39,11 +39,11 @@ DeviceAddress TEMP_BAT_RIGHT_ADDR = {0x28, 0x53, 0x6E, 0x95, 0xF0, 0x01, 0x3C, 0
 DeviceAddress TEMP_BAT_DOWN_ADDR  = {0x28, 0x7A, 0xEF, 0x95, 0xF0, 0x01, 0x3C, 0xC8}; // inside battery box, in bottom heatmat
 char DS18_NR = 5; // Number of DS18 sensors
 // variables that check if the DS18B20 temperature sensors have been found
-bool temp_cubesat_found = false;
-bool temp_bat_box_found = false;
-bool temp_bat_left_found = false;
+bool temp_cubesat_found   = false;
+bool temp_bat_box_found   = false;
+bool temp_bat_left_found  = false;
 bool temp_bat_right_found = false;
-bool temp_bat_down_found = false;
+bool temp_bat_down_found  = false;
 
 
 // Resolution can be 9,10,11,12, the higher the slower
@@ -67,8 +67,13 @@ struct SensorData {
   float roll;
   float pitch;
   float heading;
-  float battTemp;
-  float battTemp2;
+  // 5 DS18B20 temp sensors
+  float battTempLeft; // Temperature of batteries inside heatmat, at the left, looking from the camera
+  float battTempRight; // Temperature of batteries inside heatmat, at the right, looking from the camera
+  float battTempDown; // Temperature of batteries inside heatmat, at the bottom, opposite to the battery box openning
+  float battTempBox; // Temperature of batteries inside the box, outside the heatmats
+  float TempCubesatDS18; // Temperature of the cubesat, taken from the DS18B20 sensor
+  // the other temperature sensor, not DS18B20
   float temperature;
   float pressure;
   float humidity;
@@ -195,8 +200,14 @@ void loop() {
     sensorData.temperature = bme.readTemperature();
     sensorData.humidity = bme.readHumidity();
     sensorData.pressure = bme.readPressure() / 100.0;
-    sensor_DS18.requestTemperatures();   //Se envía el comando para leer la temperatura
-    sensorData.battTemp = sensor_DS18.getTempCByIndex(0);
+    sensor_DS18.requestTemperatures();   //Se envia el comando para leer la temperatura
+    // Reading the 5 DS18B20 sensors
+    sensorData.TempCubesatDS18 = sensor_DS18.getTempC(TEMP_CUBESAT_ADDR);
+    sensorData.battTempBox     = sensor_DS18.getTempC(TEMP_BAT_BOX_ADDR);
+    sensorData.battTempLeft    = sensor_DS18.getTempC(TEMP_BAT_LEFT_ADDR);
+    sensorData.battTempRight   = sensor_DS18.getTempC(TEMP_BAT_RIGHT_ADDR);
+    sensorData.battTempDown    = sensor_DS18.getTempC(TEMP_BAT_DOWN_ADDR);
+
 
 
     sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
@@ -238,7 +249,11 @@ void loop() {
     "Roll:" + String(sensorData.roll) + "," +
     "Pitch:" + String(sensorData.pitch) + "," +
     "Heading:" + String(sensorData.heading) + "," +
-    "Batt. Temp:" + String(sensorData.battTemp) + "," +
+    "Temp-batt-Left:" + String(sensorData.battTempLeft) + "," +
+    "Temp-batt-Right:" + String(sensorData.battTempRight) + "," +
+    "Temp-batt-Down:" + String(sensorData.battTempDown) + "," +
+    "Temp-batt-Box:" + String(sensorData.battTempBox) + "," +
+    "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "," +    
     "Temperature:" + String(sensorData.temperature) + "," +
     "Humidity:" + String(sensorData.humidity) + "," +
     "Pressure:" + String(sensorData.pressure) + "," +
@@ -433,7 +448,15 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
   dataFile.print(",");
   dataFile.print(sensorData.heading);
   dataFile.print(",");
-  dataFile.print(sensorData.battTemp);
+  dataFile.print(sensorData.battTempLeft);
+  dataFile.print(",");
+  dataFile.print(sensorData.battTempRight);
+  dataFile.print(",");
+  dataFile.print(sensorData.battTempDown);
+  dataFile.print(",");
+  dataFile.print(sensorData.battTempBox);
+  dataFile.print(",");
+  dataFile.print(sensorData.TempCubesatDS18);
   dataFile.print(",");
   dataFile.print(sensorData.temperature);
   dataFile.print(",");
