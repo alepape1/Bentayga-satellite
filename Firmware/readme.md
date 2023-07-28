@@ -1,4 +1,17 @@
+# Arduino code and sensors:
 
+The main stack of arduino boards is the following from bottom to top:
+
+- MKR connector: https://docs.arduino.cc/hardware/mkr-connector-carrier
+- MKR WAN 1310: https://docs.arduino.cc/hardware/mkr-wan-1310
+- MKR MEM SHIELD: https://docs.arduino.cc/hardware/mkr-mem-shield
+- MKR IMU SHIELD: https://docs.arduino.cc/hardware/mkr-imu-shield
+
+## Reference
+
+Since there are 5 temperature sensors, 3 of them at the sides of the batteries. To know which sensor is each of them, the reference is taken from the following picture, considering I the left (Izquierda), and R the right (Derecha)
+
+![Bentayga Cubesat Reference](../imgs/cubesat_izq_dcha_sm.jpeg)
 
 ## [Temperature sensors](./temperature)
 
@@ -9,6 +22,15 @@ Use libraries:
 
 - https://playground.arduino.cc/Learning/OneWire
 - https://www.milesburton.com/w/index.php/Dallas_Temperature_Control_Library
+
+The cubesat has five DS18B20 temperature sensors, whose internal codes referred to the cubesat laid down and from the camera side, are:
+
+Sensors inside the battery box
+- Right (Derecha):  28 53 6E 95 F0 01 3C EE (waterproof sensor)
+- Left (Izquierda): 28 37 50 95 F0 01 3C D7 (waterproof sensor)
+- Down (Bajo):      28 7A EF 95 F0 01 3C C8 (waterproof sensor)
+- Inside box:       28 55 B3 95 F0 01 3C EE (waterproof sensor)
+- Inside cubesat:   28,FF 10 4B 20 18 01 10 (PCB sensor with resistor)
 
 ---
 
