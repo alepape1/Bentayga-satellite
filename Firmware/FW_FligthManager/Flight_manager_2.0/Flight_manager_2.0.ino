@@ -38,6 +38,12 @@ DeviceAddress TEMP_BAT_LEFT_ADDR  = {0x28, 0x37, 0x50, 0x95, 0xF0, 0x01, 0x3C, 0
 DeviceAddress TEMP_BAT_RIGHT_ADDR = {0x28, 0x53, 0x6E, 0x95, 0xF0, 0x01, 0x3C, 0xEE}; // inside battery box, in right heatmat
 DeviceAddress TEMP_BAT_DOWN_ADDR  = {0x28, 0x7A, 0xEF, 0x95, 0xF0, 0x01, 0x3C, 0xC8}; // inside battery box, in bottom heatmat
 char DS18_NR = 5; // Number of DS18 sensors
+// variables that check if the DS18B20 temperature sensors have been found
+bool temp_cubesat_found = false;
+bool temp_bat_box_found = false;
+bool temp_bat_left_found = false;
+bool temp_bat_right_found = false;
+bool temp_bat_down_found = false;
 
 
 // Resolution can be 9,10,11,12, the higher the slower
@@ -336,6 +342,8 @@ bool temperature_sensor_init() {
     int miss_ds18 = DS18_NR - numSensorsFound;
     Serial.print(miss_ds18);
     Serial.println(" DS18B20 temperature sensors");
+  } else {
+    Serial.println("All DS18B20 temperature sensors found");
   }
   // If found any, show address
   if (numSensorsFound >= 1) {
@@ -345,19 +353,49 @@ bool temperature_sensor_init() {
       sensor_DS18.getAddress(sens_temp_addr, sens_i);
       // compare the address with the sensors
       if        (comp_dev_addr(sens_temp_addr, TEMP_CUBESAT_ADDR)) {
+        temp_cubesat_found = true;
         Serial.print("General cubesat sensor address found: "); // inside cubesat, outside battery box
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_BOX_ADDR)) {
-        Serial.print("Battery box sensor address found: ");
+        temp_bat_box_found = true;
+        Serial.print("Battery box sensor address found:     ");
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_LEFT_ADDR)) {
-        Serial.print("Left heatmat sensor address found:       ");
+        Serial.print("Left heatmat sensor address found:    ");
+        temp_bat_left_found = true;
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_RIGHT_ADDR)) {
-        Serial.print("Right heatmat sensor address found:       ");
+        Serial.print("Right heatmat sensor address found:   ");
+        temp_bat_right_found = true;
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_DOWN_ADDR)) {
-        Serial.print("Down heatmat sensor address found:       ");
+        Serial.print("Down heatmat sensor address found:    ");
+        temp_bat_down_found = true;
+      } else {
+        Serial.print("Unkown temperature sensor address found:    ");
       }
       // print the address
       prnt_dev_addr (sens_temp_addr); // print the address
     }
+
+    // after the loop, check if there is a missing temperature sensor:
+    if (!temp_cubesat_found) {
+      Serial.print("WARNING: General cubesat DS18B20 temperature sensor address not found, address:  ");
+      prnt_dev_addr (TEMP_CUBESAT_ADDR);
+    }
+    if (!temp_bat_box_found) {
+      Serial.print("WARNING: Battery box DS18B20 temperature sensor address not found, address:  ");
+      prnt_dev_addr (TEMP_BAT_BOX_ADDR);
+    }
+    if (!temp_bat_right_found) {
+      Serial.print("WARNING: Rigth heatmat DS18B20 temperature sensor address not found, address:  ");
+      prnt_dev_addr (TEMP_BAT_RIGHT_ADDR);
+    }
+    if (!temp_bat_left_found) {
+      Serial.print("WARNING: Left heatmat DS18B20 temperature sensor address not found, address:  ");
+      prnt_dev_addr (TEMP_BAT_LEFT_ADDR);
+    }
+    if (!temp_bat_down_found) {
+      Serial.print("WARNING: Down heatmat DS18B20 temperature sensor address not found, address:  ");
+      prnt_dev_addr (TEMP_BAT_DOWN_ADDR);
+    }
+
     return true;
   } else {
     Serial.println("No DS18B20 temperature sensors found");
