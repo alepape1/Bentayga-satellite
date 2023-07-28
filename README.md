@@ -17,10 +17,18 @@ Using the Arduino Library manager, search and install the following packages:
 * BNO055 - Adafruit; and it dependencies.
 * BM280 - Adafruit; and it dependencies.
 * Groove RTC DS1307 - Speeed Studio
+* OneWire https://playground.arduino.cc/Learning/OneWire
+* Dallas Temperature: https://www.milesburton.com/w/index.php/Dallas_Temperature_Control_Librar
 
 ## Setup
 
 The Flight Manager should be connected to an IMU and a barometric pressure sensor. The LoRa module should also be properly connected.
+
+Arduino Shields from bottom-up:
+- MKR connector: https://docs.arduino.cc/hardware/mkr-connector-carrier
+- MKR WAN 1310: https://docs.arduino.cc/hardware/mkr-wan-1310
+- MKR MEM SHIELD: https://docs.arduino.cc/hardware/mkr-mem-shield
+- MKR IMU SHIELD: https://docs.arduino.cc/hardware/mkr-imu-shield
 
 ## Usage
 
