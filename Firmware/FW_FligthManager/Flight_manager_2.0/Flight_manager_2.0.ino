@@ -1,8 +1,8 @@
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
+#include <Adafruit_Sensor.h> // Adafruit Unified Sensor
 #include <Adafruit_BNO055.h>
 #include <Adafruit_BME280.h>
-#include "DS1307.h"
+#include "DS1307.h"  // Grove RTC DS1307 - Seeed Studio
 #include <LoRa.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 #include <OneWire.h>
@@ -18,6 +18,9 @@
 
 #define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
+// Pin were the PWM output to the MOSFET for the heatmats:
+const int PIN_HEATMATS = 0;
+
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 2;
 
@@ -25,6 +28,17 @@ const int PIN_ONEWIRE = 2;
 const int GPIO_C = 5;  // GPIO pin for the camera capturing signal
 const int GPIO_LSB = 6;  // GPIO pin for the less significative bit of the memory capacity signal
 const int GPIO_MSB = 7;  // GPIO pin for the less significative bit of the memory capacity signal
+
+
+// These are the address of the 5 DS18B20 temperature sensors, their code has been requested 
+// with the sketch: detect_ds1820_tempsens_id.ino
+DeviceAddress TEMP_CUBESAT_ADDR   = {0x28, 0xFF, 0x10, 0x4B, 0x20, 0x18, 0x01, 0x10}; // inside cubesat
+DeviceAddress TEMP_BAT_BOX_ADDR   = {0x28, 0x55, 0xB3, 0x95, 0xF0, 0x01, 0x3C, 0xEE};  // inside battery box
+DeviceAddress TEMP_BAT_LEFT_ADDR  = {0x28, 0x37, 0x50, 0x95, 0xF0, 0x01, 0x3C, 0xD7}; // inside battery box, in left heatmat
+DeviceAddress TEMP_BAT_RIGHT_ADDR = {0x28, 0x53, 0x6E, 0x95, 0xF0, 0x01, 0x3C, 0xEE}; // inside battery box, in right heatmat
+DeviceAddress TEMP_BAT_DOWN_ADDR  = {0x28, 0x7A, 0xEF, 0x95, 0xF0, 0x01, 0x3C, 0xC8}; // inside battery box, in bottom heatmat
+char DS18_NR = 5; // Number of DS18 sensors
+
 
 // Resolution can be 9,10,11,12, the higher the slower
 // default seems to be the last that has been set.
@@ -92,6 +106,8 @@ bool temperature_sensor_init();
 void IMU_calibration();
 void IMU_get_values(SensorData &sensorData);
 void print_dev_addr(DeviceAddress addr);
+bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2);
+
 
 void setup() {
 
@@ -108,11 +124,7 @@ void setup() {
 
   Serial.println("Bentayga I. System init");
 
-  if (temperature_sensor_init()) {
-    Serial.println("DS18 Temperature sensor is connected. Status:OK ");
-  } else {
-    Serial.println("ERROR: The DS18 temperature sensor is not available");
-  }
+  temperature_sensor_init(); // Initializacion of the 5 DS18B20 temperature sensors
 
   // Inicializar la tarjeta SD
   if (!SD.begin(4)) {
@@ -307,33 +319,48 @@ bool temperature_sensor_init() {
 
   uint8_t resolution = sensor_DS18.getResolution();
 
-  Serial.print("Initial resolution: ");
-  Serial.print(resolution);
-  Serial.println("bits");
   sensor_DS18.setResolution(SENSOR_BIT_RESOL);
   resolution = sensor_DS18.getResolution();
-  Serial.print("New resolution: ");
+  Serial.print("Setting DS18B20 temperature sensor resolution to 0.50 C: ");
   Serial.print(resolution);
   Serial.println("bits");
 
   // Searching sensors
   Serial.println("Searching temp sensors...");
   Serial.print("Found: ");
-  int numSensorsFound = sensor_DS18.getDeviceCount();
+  byte numSensorsFound = sensor_DS18.getDeviceCount();
   Serial.print(numSensorsFound);
   Serial.println(" sensors");
+  if (numSensorsFound < DS18_NR) {
+    Serial.print(" Missing ");
+    int miss_ds18 = DS18_NR - numSensorsFound;
+    Serial.print(miss_ds18);
+    Serial.println(" DS18B20 temperature sensors");
+  }
   // If found any, show address
   if (numSensorsFound >= 1) {
-    for (int sens_i = 0; sens_i < numSensorsFound; sens_i++) {
+    for (byte sens_i = 0; sens_i < numSensorsFound; sens_i++) {
       DeviceAddress sens_temp_addr; // 8 byte array (uint8_t)
       // get adddres of the sensor
       sensor_DS18.getAddress(sens_temp_addr, sens_i);
-      Serial.print("Sensor address: ");
+      // compare the address with the sensors
+      if        (comp_dev_addr(sens_temp_addr, TEMP_CUBESAT_ADDR)) {
+        Serial.print("General cubesat sensor address found: "); // inside cubesat, outside battery box
+      } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_BOX_ADDR)) {
+        Serial.print("Battery box sensor address found: ");
+      } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_LEFT_ADDR)) {
+        Serial.print("Left heatmat sensor address found:       ");
+      } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_RIGHT_ADDR)) {
+        Serial.print("Right heatmat sensor address found:       ");
+      } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_DOWN_ADDR)) {
+        Serial.print("Down heatmat sensor address found:       ");
+      }
+      // print the address
       prnt_dev_addr (sens_temp_addr); // print the address
     }
-
     return true;
   } else {
+    Serial.println("No DS18B20 temperature sensors found");
     return false;
   }
 
@@ -408,4 +435,15 @@ uint8_t get_camera_info(){
   //Serial.println(encodedData, HEX);
   return encodedData;
 
+}
+
+// compare two One Wire device addressess
+// a DeviceAddress is a 8 byte array
+bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2){
+ for (uint8_t i = 0; i < 8; i++){
+    if (addr1[i] != addr2[i]) {
+      return false;
+    }
+ }
+ return true; // if here, all are equal
 }
