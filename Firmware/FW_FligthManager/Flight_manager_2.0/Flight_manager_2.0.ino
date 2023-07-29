@@ -9,6 +9,7 @@
 #include <DallasTemperature.h>
 #include <SD.h>
 #include <Adafruit_SleepyDog.h>
+#include "CRC32.h" // To Check:CRC--> CRC32 by Christopher Baker
 
 
 #define SAMPLE_SENSOR_TIME 2000
@@ -82,13 +83,14 @@ struct SensorData {
   float longitude;
   float speed;
   uint8_t numSatellites;
-  uint16_t year;
+  uint16_t year; 
   uint8_t month;
   uint8_t day;
   uint8_t hour;
   uint8_t minute;
   uint8_t second;
   uint8_t camera_info;
+  uint32_t checksum; // To Check:CRC
 };
 
 
@@ -201,14 +203,13 @@ void loop() {
     sensorData.humidity = bme.readHumidity();
     sensorData.pressure = bme.readPressure() / 100.0;
     sensor_DS18.requestTemperatures();   //Se envia el comando para leer la temperatura
+
     // Reading the 5 DS18B20 sensors
     sensorData.TempCubesatDS18 = sensor_DS18.getTempC(TEMP_CUBESAT_ADDR);
     sensorData.battTempBox     = sensor_DS18.getTempC(TEMP_BAT_BOX_ADDR);
     sensorData.battTempLeft    = sensor_DS18.getTempC(TEMP_BAT_LEFT_ADDR);
     sensorData.battTempRight   = sensor_DS18.getTempC(TEMP_BAT_RIGHT_ADDR);
     sensorData.battTempDown    = sensor_DS18.getTempC(TEMP_BAT_DOWN_ADDR);
-
-
 
     sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
     sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
@@ -217,6 +218,8 @@ void loop() {
     sensorData.numSatellites = myGNSS.getSIV();
 
     sensorData.camera_info = get_camera_info();
+
+    sensorData.checksum = CRC32::calculate((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum)); // To Check:CRC
 
     if (update_time){
       if (myGNSS.getTimeValid()) {
@@ -262,7 +265,8 @@ void loop() {
     "Longitude:" + String(sensorData.longitude, 6) + "," +
     "Speed:" + String(sensorData.speed) + "," +
     "NumSatellites:" + String(sensorData.numSatellites) + "," +
-    "Camera:" + String(sensorData.camera_info);
+    "Camera:" + String(sensorData.camera_info) + "," +
+    "CheckSum" + String(sensorData.checksum); // To Check:CRC
 
   if(millis() - send_data_timer >= SEND_DATA_DELAY){
   
@@ -270,9 +274,7 @@ void loop() {
     packData_and_send(sensorData);
     send_data_timer = millis();
 
-  }
-
-  
+  }  
 
   if(millis() - write_sd_data_timer >= WRITE_SD_DATA_DELAY){
     saveDataToSDCard(openDataFile(fileLog), sensorData);
