@@ -38,6 +38,7 @@ Release/
 # vi files:
 
 .*.swp
+*~
 
 # Python 
 __pycache__/

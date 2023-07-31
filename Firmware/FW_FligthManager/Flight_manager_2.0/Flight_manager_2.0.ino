@@ -9,7 +9,7 @@
 #include <DallasTemperature.h>
 #include <SD.h>
 #include <Adafruit_SleepyDog.h>
-#include "CRC32.h" // To Check:CRC--> CRC32 by Christopher Baker
+#include "Arduino_CRC32.h" 
 
 
 #define SAMPLE_SENSOR_TIME 2000
@@ -63,6 +63,8 @@ Adafruit_BME280 bme;
 SFE_UBLOX_GNSS myGNSS;
 DS1307 clock;               //define a object of DS1307 class
 
+Arduino_CRC32 crc32;
+
 struct SensorData {
 
   float roll;
@@ -90,7 +92,7 @@ struct SensorData {
   uint8_t minute;
   uint8_t second;
   uint8_t camera_info;
-  uint32_t checksum; // To Check:CRC
+  uint32_t checksum;
 };
 
 
@@ -219,7 +221,7 @@ void loop() {
 
     sensorData.camera_info = get_camera_info();
 
-    sensorData.checksum = CRC32::calculate((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum)); // To Check:CRC
+    sensorData.checksum = crc32.calc((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum));
 
     if (update_time){
       if (myGNSS.getTimeValid()) {
@@ -266,7 +268,7 @@ void loop() {
     "Speed:" + String(sensorData.speed) + "," +
     "NumSatellites:" + String(sensorData.numSatellites) + "," +
     "Camera:" + String(sensorData.camera_info) + "," +
-    "CheckSum" + String(sensorData.checksum); // To Check:CRC
+    "CheckSum:" + String(sensorData.checksum, HEX); 
 
   if(millis() - send_data_timer >= SEND_DATA_DELAY){
   
