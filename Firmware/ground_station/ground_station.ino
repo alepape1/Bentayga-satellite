@@ -5,6 +5,7 @@
 #include <LoRa.h>
 #include "Seeed_BME280.h"
 #include <Arduino_MKRGPS.h>
+#include "CRC32.h" // CRC32 by Christopher Baker
 
 // Strucuture of data for Sensor data from the satellite
 struct SensorData {
@@ -12,8 +13,13 @@ struct SensorData {
   float roll;
   float pitch;
   float heading;
-  float battTemp;
-  float battTemp2;
+  // 5 DS18B20 temp sensors
+  float battTempLeft; // Temperature of batteries inside heatmat, at the left, looking from the camera
+  float battTempRight; // Temperature of batteries inside heatmat, at the right, looking from the camera
+  float battTempDown; // Temperature of batteries inside heatmat, at the bottom, opposite to the battery box openning
+  float battTempBox; // Temperature of batteries inside the box, outside the heatmats
+  float TempCubesatDS18; // Temperature of the cubesat, taken from the DS18B20 sensor
+  // the other temperature sensor, not DS18B20
   float temperature;
   float pressure;
   float humidity;
@@ -22,16 +28,19 @@ struct SensorData {
   float longitude;
   float speed;
   uint8_t numSatellites;
-  int16_t year;
+  uint16_t year;
   uint8_t month;
   uint8_t day;
   uint8_t hour;
   uint8_t minute;
   uint8_t second;
+  uint8_t camera_info;
+  uint32_t checksum; // CRC32
 };
 
 // Initializes the serial communication and the LoRa module
 void setup() {
+
   Serial.begin(115200);
   while (!Serial);
 
@@ -48,12 +57,48 @@ void setup() {
 }
 
 void loop() {
+
   if (LoRa.parsePacket()) {
+
     SensorData sensorData;
+    uint32_t checksum;
 
     // Read the received data into the sensorData structure
-    if (LoRa.readBytes((uint8_t*)&sensorData, sizeof(SensorData)) == sizeof(SensorData)) {
+    if (LoRa.readBytes((uint8_t*)&sensorData, sizeof(SensorData)) == sizeof(SensorData)) 
+    {
       // Process the received sensor data
+      Serial.print(sensorData.roll);
+      Serial.print(",");
+      Serial.print(sensorData.pitch);
+      Serial.print(",");
+      Serial.print(sensorData.heading);
+      Serial.print(",");
+      Serial.print(sensorData.battTempLeft);
+      Serial.print(",");
+      Serial.print(sensorData.battTempRight);
+      Serial.print(",");
+      Serial.print(sensorData.battTempDown);
+      Serial.print(",");
+      Serial.print(sensorData.battTempBox);
+      Serial.print(",");
+      Serial.print(sensorData.TempCubesatDS18);
+      Serial.print(",");
+      Serial.print(sensorData.temperature);
+      Serial.print(",");
+      Serial.print(sensorData.pressure);
+      Serial.print(",");
+      Serial.print(sensorData.humidity);
+      Serial.print(",");
+      Serial.print(sensorData.GpsAltitude);
+      Serial.print(",");
+      Serial.print(sensorData.latitude);
+      Serial.print(",");
+      Serial.print(sensorData.longitude);
+      Serial.print(",");
+      Serial.print(sensorData.speed);
+      Serial.print(",");
+      Serial.print(sensorData.numSatellites);
+      Serial.print(",");
       Serial.print(sensorData.year);
       Serial.print(",");
       Serial.print(sensorData.month);
@@ -66,33 +111,20 @@ void loop() {
       Serial.print(",");
       Serial.print(sensorData.second);
       Serial.print(",");
-      Serial.print(sensorData.pitch);
+      Serial.print(sensorData.camera_info);
       Serial.print(",");
-      Serial.print(sensorData.heading);
-      Serial.print(",");
-      Serial.print(sensorData.battTemp);
-      Serial.print(",");
-      Serial.print(sensorData.battTemp2);
-      Serial.print(",");
-      Serial.print(sensorData.temperature);
-      Serial.print(",");
-      Serial.print(sensorData.humidity);
-      Serial.print(",");
-      Serial.print(sensorData.pressure);
-      Serial.print(",");
-      Serial.print(sensorData.GpsAltitude);
-      Serial.print(",");
-      Serial.print(sensorData.latitude,6);
-      Serial.print(",");
-      Serial.print(sensorData.longitude,6);
-      Serial.print(",");
-      Serial.print(sensorData.speed,2);
-      Serial.print(",");
-      Serial.print(sensorData.numSatellites);
+      Serial.print(sensorData.checksum);
       Serial.print(",");
       Serial.print(LoRa.packetRssi());
       Serial.print(",");
       Serial.print(LoRa.packetSnr());
+
+      checksum = CRC32::calculate((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum));
+      
+      if (checksum == sensorData.checksum)
+      {Serial.println("Data Integrity PASSED");}
+      else {Serial.println("Data Integrity FAILED");}
+
       Serial.println();
     }
   }

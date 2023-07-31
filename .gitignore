@@ -39,3 +39,7 @@ Release/
 
 .*.swp
 *~
+
+# Python 
+__pycache__/
+*.pyc
