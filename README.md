@@ -1,5 +1,7 @@
 # Bentayga Satellite - Flight Manager
 
+![Bentayga Cubesat](./imgs/cubesat_full_persp_back.png)
+
 ## Description
 
 This code is part of the Bentayga Satellite project, developed by the IUMA at the University of Las Palmas de Gran Canaria. The Flight Manager is responsible for gathering flight data from the IMU and barometric pressure sensor and transmitting it via LoRa to a ground station.
@@ -50,4 +52,13 @@ If you wish to contribute to this code, please create a new branch from the deve
 
 ## License
 
-This code is licensed under the MIT License. 
+This code is licensed under the MIT License.
+
+## CAD Images
+
+![Bentayga Cubesat front](./imgs/cubesat_full_persp.png)
+
+![Bentayga Cubesat back front](./imgs/cubesat_full_persp_back_top.png)
+
+
+
