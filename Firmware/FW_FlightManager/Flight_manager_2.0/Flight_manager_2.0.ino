@@ -71,7 +71,7 @@ const int HEAT_3     = (int) HEAT_FULL*(3/4);  // 159
 #define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
 // Pin were the PWM output to the MOSFET for the heatmats:
-const int PIN_HEATMATS = 0;
+const int PIN_HEATMATS = 1; // cannot be 0, because it is used by the IMU
 
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 2;
@@ -187,6 +187,7 @@ void setup() {
   pinMode(GPIO_LSB, INPUT_PULLUP);
   pinMode(GPIO_MSB, INPUT_PULLUP);
 
+ 
   // Setup the output to control the heatpad, which goes to the MOSFET
   pinMode(PIN_HEATMATS, OUTPUT);  // it has to be a PWM pin
   digitalWrite(PIN_HEATMATS, LOW); // turn-off the heatmats, until we have temperature values
@@ -251,6 +252,7 @@ void setup() {
 
 void loop() {
 
+  
   IMU_get_values(sensorData);
 
   if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
@@ -275,7 +277,7 @@ void loop() {
     int temp_box   = (int) round(sensorData.battTempBox);
 
     // heatmat temperature control
-    temp_ctrl (temp_left, temp_down, temp_right, temp_box);
+    temp_ctrl (temp_left, temp_down, temp_right, temp_box);  
 
     sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
     sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
@@ -659,17 +661,23 @@ int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
     temp_error = 0;
   }
     
-
+  Serial.print("Avg Bat temp: ");
+  Serial.println(comm_temp);
   if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
     digitalWrite(PIN_HEATMATS, LOW);
+    Serial.println("Heat OFF");
   } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
     analogWrite(PIN_HEATMATS, HEAT_START);
+    Serial.println("Heat level 1");
   } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
     analogWrite(PIN_HEATMATS, HEAT_2);
+    Serial.println("Heat level 2");
   } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
     analogWrite(PIN_HEATMATS, HEAT_3);
+    Serial.println("Heat level 3");    
   } else { // batteries beyond the limit
     analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
+    Serial.println("Heat level FULL");        
   }
   return temp_error;
  }
