@@ -18,7 +18,7 @@
 
 // Below this temperature the heatpad will be ON. Should be low
 #ifdef TESTING_ROOM_TEMP
-  const int MIN_TEMP_START = 40; // but this is for testing at room temperature
+  const int MIN_TEMP_START = 35; // but this is for testing at room temperature
 #else // Real mission or inside a freezer
   const int MIN_TEMP_START = 5; // Below 5 the heatpad will be on
 #endif
@@ -60,7 +60,7 @@ const int MAX_DIFF_SENS_TEMP = 5; // if sensors temperature is larger than this,
 const int HEAT_FULL  = 212;
 const int HEAT_START = (int) HEAT_FULL/4;  // 53
 const int HEAT_2     = (int) HEAT_FULL/2;  // 106
-const int HEAT_3     = (int) HEAT_FULL*(3/4);  // 159
+const int HEAT_3     = (int) ((3*HEAT_FULL)/4);  // 159
 
 
 #define SAMPLE_SENSOR_TIME 2000
@@ -668,16 +668,20 @@ int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
     Serial.println("Heat OFF");
   } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
     analogWrite(PIN_HEATMATS, HEAT_START);
-    Serial.println("Heat level 1");
+    Serial.print("Heat level 1, PWM value: ");
+    Serial.println(HEAT_START);
   } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
     analogWrite(PIN_HEATMATS, HEAT_2);
-    Serial.println("Heat level 2");
+    Serial.print("Heat level 2, PWM value: ");
+    Serial.println(HEAT_2);
   } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
     analogWrite(PIN_HEATMATS, HEAT_3);
-    Serial.println("Heat level 3");    
+    Serial.print("Heat level 3, PWM value: ");
+    Serial.println(HEAT_3);
   } else { // batteries beyond the limit
     analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
-    Serial.println("Heat level FULL");        
+    Serial.print("Heat level FULL, PWM value: ");
+    Serial.println(HEAT_FULL);    
   }
   return temp_error;
  }
