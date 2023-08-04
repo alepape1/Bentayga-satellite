@@ -11,6 +11,57 @@
 #include <Adafruit_SleepyDog.h>
 #include "Arduino_CRC32.h" 
 
+// --------------------------------------------------------------------
+// ---- CHANGE HERE THE BEHAVIOUR OF THE HEATPAD CONTROL WITH TEMPERATURE
+// if you are testing at room temperature, outside a fridge
+#define TESTING_ROOM_TEMP  // COMMENT IN REAL MISSION OR TESTING INSIDE A FREEZER
+
+// Below this temperature the heatpad will be ON. Should be low
+#ifdef TESTING_ROOM_TEMP
+  const int MIN_TEMP_START = 35; // but this is for testing at room temperature
+#else // Real mission or inside a freezer
+  const int MIN_TEMP_START = 5; // Below 5 the heatpad will be on
+#endif
+
+// if any sensor is above this is the temperature, heatmats should be off
+//const int LIMIT_TEMP_HIGH = 45;
+
+const int TEMP_STEP = 5; // Temperature steps that define the levels
+// Half way between the starting temperature and the extreme
+const int MIN_TEMP_2       = MIN_TEMP_START - TEMP_STEP; // More levels could be added
+const int MIN_TEMP_3       = MIN_TEMP_2 - TEMP_STEP; // More levels could be added
+// If this low temperature is reached, the heatpads will be at maximum temperature
+const int MIN_TEMP_EXTREM = MIN_TEMP_3 - TEMP_STEP; // More levels could be added
+// We have defined 4 levels
+//                   Mission/Freezer  -- Room temperature experiment
+// MIN_TEMP_START  =   5 C                40   -- below this, heatpad are partially ON
+// MIN_TEMP_2      =   0 C                35
+// MIN_TEMP_3      =  -5 C                30
+// MIN_TEMP_EXTREM = -10 C                25   -- below this, heatpads are FULL-ON
+
+// There are 5 DS18B20 temperature sensors and another one of a different kind
+// 
+// The temperature sensors inside the battery box should have a similar temperature
+// Especially the 3 sensors inside the mats
+// If one of them is off, it should be discarded. Double check with the other sensor
+// inside the box.
+// This will be the maximum allowable temperature difference.
+// change it if it is too high or low
+// This is for the difference with 3 the sensor temperatures, comparing the temperature of the 
+// middle with the other two. If any is higher than this difference, it could be a problem in a sensor
+const int MAX_DIFF_SENS_TEMP = 5; // if sensors temperature is larger than this, it might be a problem
+
+
+// --------- END OF TEMPERATURE TESTING CHANGES -----------------------------------
+
+// Since the heatpads are rated for 12V and their batteries are 14.4V, 
+// The maximum value for the PWM should be 212 = 255*12/14.4
+
+const int HEAT_FULL  = 212;
+const int HEAT_START = (int) HEAT_FULL/4;  // 53
+const int HEAT_2     = (int) HEAT_FULL/2;  // 106
+const int HEAT_3     = (int) ((3*HEAT_FULL)/4);  // 159
+
 
 #define SAMPLE_SENSOR_TIME 2000
 #define SEND_DATA_DELAY 10000
@@ -20,7 +71,7 @@
 #define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
 // Pin were the PWM output to the MOSFET for the heatmats:
-const int PIN_HEATMATS = 0;
+const int PIN_HEATMATS = 1; // cannot be 0, because it is used by the IMU
 
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 2;
@@ -45,6 +96,7 @@ bool temp_bat_box_found   = false;
 bool temp_bat_left_found  = false;
 bool temp_bat_right_found = false;
 bool temp_bat_down_found  = false;
+
 
 
 // Resolution can be 9,10,11,12, the higher the slower
@@ -122,7 +174,7 @@ void IMU_calibration();
 void IMU_get_values(SensorData &sensorData);
 void print_dev_addr(DeviceAddress addr);
 bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2);
-
+int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box);
 
 void setup() {
 
@@ -134,6 +186,11 @@ void setup() {
   pinMode(GPIO_C, INPUT_PULLUP);
   pinMode(GPIO_LSB, INPUT_PULLUP);
   pinMode(GPIO_MSB, INPUT_PULLUP);
+
+ 
+  // Setup the output to control the heatpad, which goes to the MOSFET
+  pinMode(PIN_HEATMATS, OUTPUT);  // it has to be a PWM pin
+  digitalWrite(PIN_HEATMATS, LOW); // turn-off the heatmats, until we have temperature values
 
   clock.begin();
 
@@ -195,6 +252,7 @@ void setup() {
 
 void loop() {
 
+  
   IMU_get_values(sensorData);
 
   if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
@@ -212,6 +270,14 @@ void loop() {
     sensorData.battTempLeft    = sensor_DS18.getTempC(TEMP_BAT_LEFT_ADDR);
     sensorData.battTempRight   = sensor_DS18.getTempC(TEMP_BAT_RIGHT_ADDR);
     sensorData.battTempDown    = sensor_DS18.getTempC(TEMP_BAT_DOWN_ADDR);
+
+    int temp_left  = (int) round(sensorData.battTempLeft);
+    int temp_down  = (int) round(sensorData.battTempDown);
+    int temp_right = (int) round(sensorData.battTempRight);
+    int temp_box   = (int) round(sensorData.battTempBox);
+
+    // heatmat temperature control
+    temp_ctrl (temp_left, temp_down, temp_right, temp_box);  
 
     sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
     sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
@@ -512,3 +578,111 @@ bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2){
  }
  return true; // if here, all are equal
 }
+
+// temperature control of the heatmats, returns 1 if there is a problem, 0 if ok
+int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
+
+  int temp_error = 0;
+
+  // order the heatmats temperatures
+  int highest_temp, mid_temp, lowest_temp;
+  if (temp_left > temp_down) {
+    if (temp_left > temp_right) {
+      highest_temp = temp_left;
+      if (temp_right > temp_down) {
+        mid_temp = temp_right;
+        lowest_temp = temp_down;
+      } else {
+        mid_temp = temp_down;
+        lowest_temp = temp_right;
+      }
+    } else { // right > left > down
+      highest_temp = temp_right;
+      mid_temp = temp_left;
+      lowest_temp = temp_down;
+    }
+  } else { // down > left
+    if (temp_down > temp_right) {
+      highest_temp = temp_down;
+      if (temp_right > temp_left) {
+        mid_temp = temp_right;
+        lowest_temp = temp_left;
+      } else {
+        mid_temp = temp_left;
+        lowest_temp = temp_right;
+      }
+    } else { // right > down > left
+      highest_temp = temp_right;
+      mid_temp = temp_down;
+      lowest_temp = temp_left;
+    }
+  }
+
+  int temp_diff_high = highest_temp - mid_temp;
+  int temp_diff_low  = mid_temp - lowest_temp;
+  
+  int comm_temp; // command temperature
+  if (temp_diff_high > MAX_DIFF_SENS_TEMP) {
+    if (temp_diff_low > MAX_DIFF_SENS_TEMP) {
+      // the 3 sensors give very different temperatures
+      // to be safe, take the highest of them, to avoid overheat
+      comm_temp = highest_temp;
+      Serial.println("The 3 heatmat sensors give very diff temperatures");
+      temp_error = 1;
+    } else { // temp_high is much larger than the two low temperatures
+      // check with the battery box temperature
+      if ((highest_temp - MAX_DIFF_SENS_TEMP) > temp_box) {
+        // high temp abnormally high, remove it, and get average of other 2
+        comm_temp = (int) (mid_temp + lowest_temp) / 2;
+        Serial.println("One heatmat sensor gives higher temperatures: discarded");
+        temp_error = 1;
+      } else {
+        // strange, two temps are high, and two are low, take the high temp to be safe
+        comm_temp = highest_temp;
+        Serial.println("2 heatmat sensor give lower temperatures");
+        temp_error = 1;
+      }
+    }
+  } else if (temp_diff_low > MAX_DIFF_SENS_TEMP) { // one sensor give much lower temperatures
+    // check with the battery box temperature
+    if (temp_box > (lowest_temp + MAX_DIFF_SENS_TEMP))  { // lowest is outlier, remove it
+      comm_temp = (int) (mid_temp + highest_temp) / 2;
+      Serial.println("One heatmat sensor gives lower temperatures: discarded");
+      temp_error = 1;
+    } else {
+      // strange, two temps are high, and two are low, take the high temp to be safe
+      comm_temp = (int) (mid_temp + highest_temp) / 2;
+      Serial.println("2 heatmat sensor give higher temperatures");
+      temp_error = 1;
+    }
+  } else { // temperatures in range
+    // get the average temperature of the three heatmat sensors
+    comm_temp = (temp_left + temp_down + temp_right)/3;
+    temp_error = 0;
+  }
+    
+  Serial.print("Avg Bat temp: ");
+  Serial.println(comm_temp);
+  if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
+    digitalWrite(PIN_HEATMATS, LOW);
+    Serial.println("Heat OFF");
+  } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
+    analogWrite(PIN_HEATMATS, HEAT_START);
+    Serial.print("Heat level 1, PWM value: ");
+    Serial.println(HEAT_START);
+  } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
+    analogWrite(PIN_HEATMATS, HEAT_2);
+    Serial.print("Heat level 2, PWM value: ");
+    Serial.println(HEAT_2);
+  } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
+    analogWrite(PIN_HEATMATS, HEAT_3);
+    Serial.print("Heat level 3, PWM value: ");
+    Serial.println(HEAT_3);
+  } else { // batteries beyond the limit
+    analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
+    Serial.print("Heat level FULL, PWM value: ");
+    Serial.println(HEAT_FULL);    
+  }
+  return temp_error;
+ }
+
