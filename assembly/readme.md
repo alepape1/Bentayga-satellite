@@ -161,6 +161,34 @@ Notice how the original camera support is attached to the 3D printed support.
 
 ![Small camera picture](./imgs/pic/09_smallcamera.jpg)
 
+## Attach the Cielo panel
+
+Now that we have all the elements attached to the bottom, we are going to attach the Cielo panel.
+
+First we have to attach the 80mm profile on Top. Make sure that it is oriented properly, with the 3 sliding nuts pointing to Cielo and 2 sliding nuts pointing to Top. Ideally, there would be silicone to prevent them from sliding.
+
+![Cielo 1 CAD](./imgs/cad/10_cielo.png)
+
+
+Picture of the first step to attach the Cielo panel. Notice the silicone on the side of the Cielo nuts to prevent the nuts from sliding.
+
+![Cielo 1 picture](./imgs/pic/10_cielo.jpg)
+
+Include the self locking M3 nuts, but don't tighten them too much yet.
+
+Now position the sensors support on the exact position you want it (by sliding a little bit right or left), and tighten the self locking nuts at the bottom.
+
+Now set the Cielo plate with the two vertical 80mm profiles. Using the M3 4mm-socket button bolts and the sliding nuts. Do not tighten them too much because you will probably need to adjust them.
+
+For the adjustment, you may need to move the top 80mm profile, to center it. Once you have adjusted the bolts by placing in its position, take the plate out and adjust the top self locking nuts of the sensors support.
+
+Once it is all set, put back the plate and tighten all the socket button bolts of the Cielo plate.
+
+![Cielo 2 CAD](./imgs/cad/10_cielo2.png)
+
+Picture with the plate before screwing the vertical socket button bolts
+
+![Cielo 2 picture](./imgs/pic/10_cielo2.jpg)
 
 
 
