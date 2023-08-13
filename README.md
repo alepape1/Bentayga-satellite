@@ -9,8 +9,8 @@ This project describes the Bentayga 3U cubesat, developed by [IUMA](https://www.
 The project is composed by three main parts:
 
 - Structure made of 10x10 profiles, 3D printed parts and CNC milled FR4 fiberglass
-- [Multispectral image acquisition](#Multispectral-image-acquisition), composed by a Jetson Nano, 4 cameras with filters
-- [Control and Flight manager](#Flight-manager), composed by an Arduino MKR WAN 1310, with sensors such as GPS, temperature, humidity, barometer, RTC, IMU, and also controls the temperature of the batteries by activating heat pads.
+- [Multispectral image acquisition](#multispectral-image-acquisition), composed by a Jetson Nano, 4 cameras with filters
+- [Control and Flight manager](#flight-manager), composed by an Arduino MKR WAN 1310, with sensors such as GPS, temperature, humidity, barometer, RTC, IMU, and also controls the temperature of the batteries by activating heat pads.
 
 ---
 
@@ -21,7 +21,21 @@ The project is composed by three main parts:
 
 ---
 
-## Multispectral image acquisition
+## [Assembly instructions](./assembly)
+
+Assembly instructions are in [assembly directory](./assembly)
+
+
+---
+
+## [Structure](./cad)
+
+![Bentayga Cubesat](./imgs/cubesat_full_persp_back_sm.jpg)
+
+CAD files are in [Structure](./cad) directory.
+
+
+## [Multispectral image acquisition](./CameraBoard)
 
 ![Jetson Nano connections](./imgs/jetson_schematic_sm.jpg)
 
@@ -31,7 +45,7 @@ More information and source code is in [Camera board](./CameraBoard)
 
 ---
 
-## Flight manager
+## [Flight manager](./Firmware)
 
 The Flight Manager is responsible for gathering flight data from the IMU, sensors and transmitting it via LoRa to a ground station. It is also responsible of keeping batteries warm.
 
