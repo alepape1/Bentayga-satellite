@@ -1,4 +1,8 @@
-# Arduino code and sensors:
+# Flight manager:
+
+![Flight manager](../imgs/cubesat_schematic_sm.jpg)
+
+[Larger image of electronics schematic](../imgs/cubesat_schematic.jpg)
 
 The main stack of arduino boards is the following from bottom to top:
 
@@ -7,11 +11,56 @@ The main stack of arduino boards is the following from bottom to top:
 - MKR MEM SHIELD: https://docs.arduino.cc/hardware/mkr-mem-shield
 - MKR IMU SHIELD: https://docs.arduino.cc/hardware/mkr-imu-shield
 
-## Reference
+Then there are other boards connected by I2C
 
-Since there are 5 temperature sensors, 3 of them at the sides of the batteries. To know which sensor is each of them, the reference is taken from the following picture, considering I the left (Izquierda), and R the right (Derecha)
+- MKR GPS Shield: connect to the ESLOV connector https://docs.arduino.cc/hardware/mkr-gps-shield
+- Grove - Temp&Humi&Barometer Sensor (BME280) https://www.seeedstudio.com/Grove-BME280-Environmental-Sensor-Temperature-Humidity-Barometer.html
+- Grove - DS1307 RTC (Real Time Clock) for Arduino https://www.seeedstudio.com/Grove-RTC-DS1307.html
 
-![Bentayga Cubesat Reference](../imgs/cubesat_izq_dcha_sm.jpeg)
+The temperature sensors are connected directly by Onewire protocol:
+
+- DS18B2 temperature sensors [see below](#Temperature-sensors)
+
+Finally, the heatpads are connected through a board that includes the MOSFET to control them (we have soldered the board) [see below](#Temperature-control)
+
+
+### Requirements
+
+This code requires the following libraries:
+- Wire.h
+- MS5x.h
+- MKRIMU.h
+- LoRa.h
+
+Using the Arduino Library manager, search and install the following packages:
+
+* BNO055 - Adafruit; and it dependencies.
+* BM280 - Adafruit; and it dependencies.
+* Groove RTC DS1307 - Speeed Studio
+* OneWire https://playground.arduino.cc/Learning/OneWire
+* Dallas Temperature: https://www.milesburton.com/w/index.php/Dallas_Temperature_Control_Library
+
+
+### Setup
+
+The Flight Manager should be connected to an IMU and a barometric pressure sensor. The LoRa module should also be properly connected.
+
+### Usage
+
+Upon startup, the Flight Manager will attempt to connect to the barometric pressure sensor. Once connected, it will continuously poll the sensor for data and transmit it via LoRa. Flight data is formatted into a byte array that includes start and stop bytes, as well as the following data:
+- Roll
+- Pitch
+- Heading
+- Temperature
+- Pressure
+- Sea level pressure
+- Altitude
+- Corrected altitude
+
+In addition to transmitting the data, the Flight Manager also prints it to the serial monitor.
+
+-------------------
+
 
 ## [Temperature sensors](./temperature)
 
@@ -33,6 +82,13 @@ Sensors inside the battery box
 - Inside cubesat:   28,FF 10 4B 20 18 01 10 (PCB sensor with resistor)
 
 ---
+
+## Reference
+
+Since there are 5 temperature sensors, 3 of them at the sides of the batteries. To know which sensor is each of them, the reference is taken from the following picture, considering I the left (Izquierda), and R the right (Derecha)
+
+![Bentayga Cubesat Reference](../imgs/cubesat_izq_dcha_sm.jpeg)
+
 
 ### [Detect sensor ID](./temperature/detect_ds1820_tempsens_id/)
 
