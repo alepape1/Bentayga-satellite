@@ -5,11 +5,13 @@ Before assembling the cubesat, have all the electronics connected and make sure 
 Check the CAD files, and get all the 3D pieces printed and the plates milled.
 
 Get all the components of the [BOM](./../bom_bentayga_cubesat.ods)
-Have pliers, Allen keys, screwdrivers. Silicone would be very useful to place the t-slot nuts and prevent them from sliding.
+Have pliers, Allen keys, screwdrivers, small zip ties, .... Silicone would be very useful to place the t-slot nuts and prevent them from sliding.
 
 The cubesat has 6 faces, they will be named according to this reference:
 
 ![References](../imgs/cubesat_full_orto_names.jpg)
+
+---
 
 ## Warning
 
@@ -20,6 +22,10 @@ The following picture shows that you cannot add any nut or bolt in the blue prof
 Therefore, before closing a profile think if all the nuts and bolts are placed, and what are you going to attach to the profile.
 
 ![nut_warning](./imgs/cad/00_warning.png)
+
+It is recommended to read all the instructions once before starting the assembly because there are some information that it is useful to know beforehand.
+
+---
 
 ## Place nuts in 80mm-profiles
 
@@ -40,8 +46,9 @@ The following pictures shows the process.
 
 ![nuts 8mm](./imgs/pic/01_nuts_80mm_profiles_b.jpg)
 
+---
 
-## Assemble the Down face
+## Assemble the Down panel
 
 Now that you have nuts in the 80mm-profiles, we are going to assemble the Down plate.
 
@@ -65,6 +72,7 @@ The result should look like this
 
 ![Down picture](./imgs/pic/02_down.jpg)
 
+---
 
 ## Attach the I2C hub to the Down plate
 
@@ -75,6 +83,8 @@ Use three M2 bolts around 6mm long. We have used one steel bolt and nut, and the
 Picture from the bottom:
 
 ![I2C Hub cad](./imgs/pic/03_i2c_hub.jpg)
+
+---
 
 ## Attach the Jetson Nano
 
@@ -88,6 +98,8 @@ Picture from Top:
 
 ![Jetson picture](./imgs/pic/04_jetson.jpg)
 
+---
+
 ## Attach the sensors support
 
 First attach the four boards to the support with M2 plastic bolts and nuts.
@@ -96,7 +108,7 @@ First attach the four boards to the support with M2 plastic bolts and nuts.
 -  Grove - Temp&Humi&Barometer Sensor (BME280) https://www.seeedstudio.com/Grove-BME280-Environmental-Sensor-Temperature-Humidity-Barometer.html
 - Two Grove - DS1307 RTC (Real Time Clock) for Arduino https://www.seeedstudio.com/Grove-RTC-DS1307.html
 
-Attach the bottom of the support to the profile. There should be two 6mm square headed bolts in this profile, as indicated in the assembling of the Down face.
+Attach the bottom of the support to the profile. There should be two 6mm square headed bolts in this profile, as indicated in the assembling of the Down panel.
 
 Put the self locking nuts as in the Jetson Nano support, but not too tight to be able to slide the support later.
 
@@ -110,6 +122,8 @@ Picture from back:
 Picture from Top:
 
 ![Sensors top picture](./imgs/pic/05_sensors_top.jpg)
+
+---
 
 ## Attach the Arduino stack
 
@@ -134,6 +148,7 @@ Picture from Top (the IMU shield was missing in the picture)
 
 ![Arduino top picture](./imgs/pic/06_arduino.jpg)
 
+---
 
 ## Attach the multispectral camera
 
@@ -141,11 +156,15 @@ Using four 12-mm square headed bolts and self locking nuts, attach the multispec
 
 ![Multispectral camera CAD](./imgs/cad/07_multcamera.png)
 
+---
+
 ## Insert the battery box
 
 Just put it in place to check the dimensions
 
 ![Battery box CAD](./imgs/cad/08_battery.png)
+
+---
 
 ## Attach the small camera support
 
@@ -160,6 +179,8 @@ Notice how the original camera support is attached to the 3D printed support.
 
 
 ![Small camera picture](./imgs/pic/09_smallcamera.jpg)
+
+---
 
 ## Attach the Cielo panel
 
@@ -186,17 +207,136 @@ Once it is all set, put back the plate and tighten all the socket button bolts o
 
 ![Cielo 2 CAD](./imgs/cad/10_cielo2.png)
 
-Picture with the plate before screwing the vertical socket button bolts
+Picture with the plate before screwing the top and bottom socket button bolts
 
 ![Cielo 2 picture](./imgs/pic/10_cielo2.jpg)
 
+---
+
+## Set the antenna
+
+The antenna can be placed outside over the Down plate, there is a hole for the cable, and some holes  that can be used to hold it with zip ties. However, since it can protrude more than what is allowed, we have decided to put it inside, between the Jetson Nano 3D support and the Right plate.
+
+The [antenna](https://store.arduino.cc/products/dipole-pentaband-waterproof-antenna) has an adhesive tape, nevertheless it is recommended to attach it with a zip tie, as shown in the next picture.
 
 
+![Antenna picture](./imgs/pic/11_antenna.jpg)
+
+---
+
+## Secure the battery box
+
+The battery box has holes on top to secure it, but in addition, you can include one or two [right angle brackets](https://www.makerbeam.com/makerbeam-right-angle-brackets-12p.html) to hold it.
+In case you put two, put them at each side.
 
 
+![Battery stop](./imgs/pic/12_battery_stop.jpg)
+
+---
+
+## Attach the Tierra panel
+
+In a similar way to the Cielo panel, put the Tierra panel.
+
+This panel is easier because it has not any support board attached, therefore you can mount the panel with the three 80mm profiles (Left, Top and Right) and attach it to the bottom 80mm profile.
+
+![Tierra panel 1](./imgs/pic/13_tierra_1.jpg)
+
+![Tierra panel 2](./imgs/pic/13_tierra_2.jpg)
+
+---
+
+## Assemble the Top-Right 340.5mm profile
+
+Insert two M3 6mm square headed bolts and tow M3 12mm square headed bolts to attach the top of the Jetson Nano support and the top-right side of the camera, respectively.
+
+![Top-right profile](./imgs/pic/14_top_right_1.jpg)
+
+Put the profile in its place, passing the bolts through the camera support:
+
+![Top-right profile 2](./imgs/pic/14_top_right_2.jpg)
+
+And the Jetson Nano support:
+
+![Top-right profile 3](./imgs/pic/14_top_right_3.jpg)
+
+Before tightening the bolts with self locking nuts, make sure that the Top profile is aligned with the bottom, and it is placed symmetrically, i.e. it has the same protrusion length in the Tierra direction  as in the Cielo direction.
+
+Put the right plate on top to check if it is aligned. If it is aligned, tighten all the nuts.
+
+Check if the sliding nuts inside the vertical 80mm profiles are aligned with the holes (thanks to the silicone), correct their position if they are not aligned.
+
+---
+
+## Assemble the Right panel
+
+Put 10 sliding nuts with their M3 4mm socket button head bolts in the Right panel as shown in the picture. There are more holes that you can use, but with these is enough.
+
+Leave the nuts loose, just enough to keep them with the bolt.
 
 
+![Right panel 1](./imgs/pic/15_right_panel_1.jpg)
+
+From one end, introduce the nuts in the profile slot and slide the panel until it is centered.
+
+![Right panel closing](./imgs/pic/15_right_panel_closing.jpg)
+
+Tighten all the bolts of the right panel:
+
+![Right panel closed](./imgs/pic/15_right_panel_closed.jpg)
+
+---
+
+## Adjust battery box
+
+Adjust all elements inside, making sure that there is room for everything, and attach it to the profile with three M3 4mm socket button head bolts and sliding nuts.
+
+![Battery box bolt](./imgs/pic/16_battery_box_1.jpg)
+
+The sliding nuts can be introduced from one end, and pushed until they are aligned with the battery box holes.
+
+![Battery box bolt](./imgs/pic/16_battery_box_2.jpg)
+
+---
+
+## Assemble the Top-Left 340.5mm profile
+
+This is similar to the Top-Right profile.
+
+Using two M3 6mm square headed bolts and tow M3 12mm square headed bolts to attach the top of the Jetson Nano support and the top-right side of the camera, respectively.
+
+Alternatively, as shown in the picture, you can use sliding nuts and blots.
+
+Do the same as in the Top-Right, making sure everything is aligned. Superimpose the plate to check the alignment.
 
 
+![Top-left profile](./imgs/pic/17_top_left.jpg)
+
+Once it is aligned, tighten the bolts, and also secure this side of the battery box, as it was done before on the right side.
+
+---
 
 
+## Fix the switches and MOSFET board
+
+Place the [switches 3D printed support](../cad/stl/switch_support.stl) and the MOSFET board on the Top-Left profile, using sliding nuts and M3 4mm socket button head bolts.
+Check that the switches are aligned with the plate holes.
+
+
+![Switchs and MOSFET board](./imgs/pic/18_switch.jpg)
+
+![Switchs and MOSFET board 2](./imgs/pic/18_switch_2.jpg)
+
+---
+## Assemble the Left panel
+
+Do the same as in the right panel.
+We have included two additional bolts, for the holes near the camera and switches.
+
+![Left panel 1](./imgs/pic/19_left_panel_1.jpg)
+
+![Left panel 2](./imgs/pic/19_left_panel_2.jpg)
+
+Tighten the bolts and place the small camera:
+
+![Left panel 3](./imgs/pic/19_left_panel_3.jpg)
