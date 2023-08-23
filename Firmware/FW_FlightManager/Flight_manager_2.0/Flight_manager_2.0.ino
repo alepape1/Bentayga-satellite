@@ -18,7 +18,7 @@
 
 // Below this temperature the heatpad will be ON. Should be low
 #ifdef TESTING_ROOM_TEMP
-  const int MIN_TEMP_START = 35; // but this is for testing at room temperature
+  const int MIN_TEMP_START = 40; // but this is for testing at room temperature
 #else // Real mission or inside a freezer
   const int MIN_TEMP_START = 5; // Below 5 the heatpad will be on
 #endif
@@ -63,9 +63,9 @@ const int HEAT_2     = (int) HEAT_FULL/2;  // 106
 const int HEAT_3     = (int) ((3*HEAT_FULL)/4);  // 159
 
 
-#define SAMPLE_SENSOR_TIME 2000
-#define SEND_DATA_DELAY 10000
-#define WRITE_SD_DATA_DELAY 10000
+#define SAMPLE_SENSOR_TIME 100
+#define SEND_DATA_DELAY 50
+#define WRITE_SD_DATA_DELAY 500
 #define WATCHDOG_TIMEOUT 12000
 
 #define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
@@ -133,6 +133,7 @@ struct SensorData {
   float pressure;
   float humidity;
   float GpsAltitude;
+  
   float latitude;
   float longitude;
   float speed;
@@ -175,6 +176,16 @@ void IMU_get_values(SensorData &sensorData);
 void print_dev_addr(DeviceAddress addr);
 bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2);
 int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box);
+
+// Parámetros del controlador PID
+const double kp = 1.0;   // Coeficiente proporcional
+const double ki = 0.2;   // Coeficiente integral
+const double kd = 0.01;  // Coeficiente derivativo
+
+// Variables para el controlador PID
+double setpoint = MIN_TEMP_START;  // Temperatura objetivo
+double prev_error = 0.0;
+double integral = 0.0;
 
 void setup() {
 
@@ -238,8 +249,8 @@ void setup() {
     Serial.println("LoRa Transceiver.         Status: OK");
   }
 
-  LoRa.setTxPower(10);
-  LoRa.setSpreadingFactor(7);
+  LoRa.setTxPower(17);
+  LoRa.setSpreadingFactor(12);
   
   delay(4000);
   
@@ -579,110 +590,135 @@ bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2){
  return true; // if here, all are equal
 }
 
-// temperature control of the heatmats, returns 1 if there is a problem, 0 if ok
+//Test PID function to control the thermal Pad
 int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
-
-  int temp_error = 0;
-
-  // order the heatmats temperatures
-  int highest_temp, mid_temp, lowest_temp;
-  if (temp_left > temp_down) {
-    if (temp_left > temp_right) {
-      highest_temp = temp_left;
-      if (temp_right > temp_down) {
-        mid_temp = temp_right;
-        lowest_temp = temp_down;
-      } else {
-        mid_temp = temp_down;
-        lowest_temp = temp_right;
-      }
-    } else { // right > left > down
-      highest_temp = temp_right;
-      mid_temp = temp_left;
-      lowest_temp = temp_down;
-    }
-  } else { // down > left
-    if (temp_down > temp_right) {
-      highest_temp = temp_down;
-      if (temp_right > temp_left) {
-        mid_temp = temp_right;
-        lowest_temp = temp_left;
-      } else {
-        mid_temp = temp_left;
-        lowest_temp = temp_right;
-      }
-    } else { // right > down > left
-      highest_temp = temp_right;
-      mid_temp = temp_down;
-      lowest_temp = temp_left;
-    }
-  }
-
-  int temp_diff_high = highest_temp - mid_temp;
-  int temp_diff_low  = mid_temp - lowest_temp;
+  double current_temp = (temp_left + temp_down + temp_right) / 3.0;
+  double error = setpoint - current_temp;
   
-  int comm_temp; // command temperature
-  if (temp_diff_high > MAX_DIFF_SENS_TEMP) {
-    if (temp_diff_low > MAX_DIFF_SENS_TEMP) {
-      // the 3 sensors give very different temperatures
-      // to be safe, take the highest of them, to avoid overheat
-      comm_temp = highest_temp;
-      Serial.println("The 3 heatmat sensors give very diff temperatures");
-      temp_error = 1;
-    } else { // temp_high is much larger than the two low temperatures
-      // check with the battery box temperature
-      if ((highest_temp - MAX_DIFF_SENS_TEMP) > temp_box) {
-        // high temp abnormally high, remove it, and get average of other 2
-        comm_temp = (int) (mid_temp + lowest_temp) / 2;
-        Serial.println("One heatmat sensor gives higher temperatures: discarded");
-        temp_error = 1;
-      } else {
-        // strange, two temps are high, and two are low, take the high temp to be safe
-        comm_temp = highest_temp;
-        Serial.println("2 heatmat sensor give lower temperatures");
-        temp_error = 1;
-      }
-    }
-  } else if (temp_diff_low > MAX_DIFF_SENS_TEMP) { // one sensor give much lower temperatures
-    // check with the battery box temperature
-    if (temp_box > (lowest_temp + MAX_DIFF_SENS_TEMP))  { // lowest is outlier, remove it
-      comm_temp = (int) (mid_temp + highest_temp) / 2;
-      Serial.println("One heatmat sensor gives lower temperatures: discarded");
-      temp_error = 1;
-    } else {
-      // strange, two temps are high, and two are low, take the high temp to be safe
-      comm_temp = (int) (mid_temp + highest_temp) / 2;
-      Serial.println("2 heatmat sensor give higher temperatures");
-      temp_error = 1;
-    }
-  } else { // temperatures in range
-    // get the average temperature of the three heatmat sensors
-    comm_temp = (temp_left + temp_down + temp_right)/3;
-    temp_error = 0;
-  }
-    
-  Serial.print("Avg Bat temp: ");
-  Serial.println(comm_temp);
-  if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
-    digitalWrite(PIN_HEATMATS, LOW);
-    Serial.println("Heat OFF");
-  } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
-    analogWrite(PIN_HEATMATS, HEAT_START);
-    Serial.print("Heat level 1, PWM value: ");
-    Serial.println(HEAT_START);
-  } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
-    analogWrite(PIN_HEATMATS, HEAT_2);
-    Serial.print("Heat level 2, PWM value: ");
-    Serial.println(HEAT_2);
-  } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
-    analogWrite(PIN_HEATMATS, HEAT_3);
-    Serial.print("Heat level 3, PWM value: ");
-    Serial.println(HEAT_3);
-  } else { // batteries beyond the limit
-    analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
-    Serial.print("Heat level FULL, PWM value: ");
-    Serial.println(HEAT_FULL);    
-  }
-  return temp_error;
- }
+  integral += error;
+  double derivative = error - prev_error;
 
+  double output = kp * error + ki * integral + kd * derivative;
+  prev_error = error;
+  
+  // Limitar el valor de salida
+  if (output > HEAT_FULL) {
+    output = HEAT_FULL;
+  } else if (output < 0) {
+    output = 0;
+  }
+
+  analogWrite(PIN_HEATMATS, output);
+  
+  return 0;  // No hay error
+}
+
+
+
+
+//// temperature control of the heatmats, returns 1 if there is a problem, 0 if ok
+//int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
+//
+//  int temp_error = 0;
+//
+//  // order the heatmats temperatures
+//  int highest_temp, mid_temp, lowest_temp;
+//  if (temp_left > temp_down) {
+//    if (temp_left > temp_right) {
+//      highest_temp = temp_left;
+//      if (temp_right > temp_down) {
+//        mid_temp = temp_right;
+//        lowest_temp = temp_down;
+//      } else {
+//        mid_temp = temp_down;
+//        lowest_temp = temp_right;
+//      }
+//    } else { // right > left > down
+//      highest_temp = temp_right;
+//      mid_temp = temp_left;
+//      lowest_temp = temp_down;
+//    }
+//  } else { // down > left
+//    if (temp_down > temp_right) {
+//      highest_temp = temp_down;
+//      if (temp_right > temp_left) {
+//        mid_temp = temp_right;
+//        lowest_temp = temp_left;
+//      } else {
+//        mid_temp = temp_left;
+//        lowest_temp = temp_right;
+//      }
+//    } else { // right > down > left
+//      highest_temp = temp_right;
+//      mid_temp = temp_down;
+//      lowest_temp = temp_left;
+//    }
+//  }
+//
+//  int temp_diff_high = highest_temp - mid_temp;
+//  int temp_diff_low  = mid_temp - lowest_temp;
+//  
+//  int comm_temp; // command temperature
+//  if (temp_diff_high > MAX_DIFF_SENS_TEMP) {
+//    if (temp_diff_low > MAX_DIFF_SENS_TEMP) {
+//      // the 3 sensors give very different temperatures
+//      // to be safe, take the highest of them, to avoid overheat
+//      comm_temp = highest_temp;
+//      Serial.println("The 3 heatmat sensors give very diff temperatures");
+//      temp_error = 1;
+//    } else { // temp_high is much larger than the two low temperatures
+//      // check with the battery box temperature
+//      if ((highest_temp - MAX_DIFF_SENS_TEMP) > temp_box) {
+//        // high temp abnormally high, remove it, and get average of other 2
+//        comm_temp = (int) (mid_temp + lowest_temp) / 2;
+//        Serial.println("One heatmat sensor gives higher temperatures: discarded");
+//        temp_error = 1;
+//      } else {
+//        // strange, two temps are high, and two are low, take the high temp to be safe
+//        comm_temp = highest_temp;
+//        Serial.println("2 heatmat sensor give lower temperatures");
+//        temp_error = 1;
+//      }
+//    }
+//  } else if (temp_diff_low > MAX_DIFF_SENS_TEMP) { // one sensor give much lower temperatures
+//    // check with the battery box temperature
+//    if (temp_box > (lowest_temp + MAX_DIFF_SENS_TEMP))  { // lowest is outlier, remove it
+//      comm_temp = (int) (mid_temp + highest_temp) / 2;
+//      Serial.println("One heatmat sensor gives lower temperatures: discarded");
+//      temp_error = 1;
+//    } else {
+//      // strange, two temps are high, and two are low, take the high temp to be safe
+//      comm_temp = (int) (mid_temp + highest_temp) / 2;
+//      Serial.println("2 heatmat sensor give higher temperatures");
+//      temp_error = 1;
+//    }
+//  } else { // temperatures in range
+//    // get the average temperature of the three heatmat sensors
+//    comm_temp = (temp_left + temp_down + temp_right)/3;
+//    temp_error = 0;
+//  }
+//    
+//  Serial.print("Avg Bat temp: ");
+//  Serial.println(comm_temp);
+//  if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
+//    digitalWrite(PIN_HEATMATS, LOW);
+//    Serial.println("Heat OFF");
+//  } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
+//    analogWrite(PIN_HEATMATS, HEAT_START);
+//    Serial.print("Heat level 1, PWM value: ");
+//    Serial.println(HEAT_START);
+//  } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
+//    analogWrite(PIN_HEATMATS, HEAT_2);
+//    Serial.print("Heat level 2, PWM value: ");
+//    Serial.println(HEAT_2);
+//  } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
+//    analogWrite(PIN_HEATMATS, HEAT_3);
+//    Serial.print("Heat level 3, PWM value: ");
+//    Serial.println(HEAT_3);
+//  } else { // batteries beyond the limit
+//    analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
+//    Serial.print("Heat level FULL, PWM value: ");
+//    Serial.println(HEAT_FULL);    
+//  }
+//  return temp_error;
+// }

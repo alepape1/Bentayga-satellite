@@ -1,5 +1,4 @@
 import sys
-import serial
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QVector3D
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QLabel, QWidget
@@ -7,56 +6,36 @@ from pyqtgraph.Qt import QtCore
 import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 import numpy as np
+import random
 
 MAX_DATA_POINTS = 3600
-
+simulation = True
 
 class SensorData:
-    def __init__(self):
 
+    def __init__(self):
         self.time = []
         self.roll = []
         self.pitch = []
         self.heading = []
-        self.batt_temp_left = []
-        self.batt_temp_right = []
-        self.batt_temp_down = []
-        self.batt_temp_box = []
-        self.batt_temp_cubesat = []
         self.temperature = []
-        self.pressure = []
         self.humidity = []
+        self.pressure = []
         self.GpsAltitude = []
         self.latitude = []
         self.longitude = []
         self.speed = []
         self.numSatellites = []
-        self.year = []
-        self.month = []
-        self.day = []
-        self.hour = []
-        self.minute =[]
-        self.second = []
-        self.camera_info = []
         self.intensity = []
         self.snr = []
 
-    def add_data_point(self, time, roll, pitch, heading, batt_temp_left, batt_temp_right, batt_temp_down, batt_temp_box,
-                       batt_temp_cubesat, temperature, pressure, humidity, GpsAltitude, latitude, longitude, speed,
-                       numSatellites, year, month, day, hour, minute, second, camera_info, intensity, snr):
-        
-        MAX_DATA_POINTS = 100  # Define your maximum data points
+    def add_data_point(self, time, roll, pitch, heading, temperature, humidity, pressure, GpsAltitude, latitude, longitude, speed, numSatellites, intensity, snr):
         
         if len(self.time) >= MAX_DATA_POINTS:
-            
+            self.time.pop(0)
             self.roll.pop(0)
             self.pitch.pop(0)
             self.heading.pop(0)   
-            self.batt_temp_left.pop(0)
-            self.batt_temp_right.pop(0)
-            self.batt_temp_down.pop(0)
-            self.batt_temp_box.pop(0)
-            self.batt_temp_cubesat.pop(0)
             self.temperature.pop(0)
             self.humidity.pop(0)
             self.pressure.pop(0)
@@ -65,13 +44,6 @@ class SensorData:
             self.longitude.pop(0)
             self.speed.pop(0)
             self.numSatellites.pop(0)
-            self.year.pop(0)
-            self.month.pop(0)
-            self.day.pop(0)
-            self.hour.pop(0)
-            self.minute.pop(0)
-            self.second.pop(0)
-            self.camera_info.pop(0)
             self.intensity.pop(0)
             self.snr.pop(0)
         
@@ -79,11 +51,6 @@ class SensorData:
         self.roll.append(roll)
         self.pitch.append(pitch)
         self.heading.append(heading)
-        self.batt_temp_left.append(batt_temp_left)
-        self.batt_temp_right.append(batt_temp_right)
-        self.batt_temp_down.append(batt_temp_down)
-        self.batt_temp_box.append(batt_temp_box)
-        self.batt_temp_cubesat.append(batt_temp_cubesat)
         self.temperature.append(temperature)
         self.humidity.append(humidity)
         self.pressure.append(pressure)
@@ -92,21 +59,14 @@ class SensorData:
         self.longitude.append(longitude)
         self.speed.append(speed)
         self.numSatellites.append(numSatellites)
-        self.year.append(year)
-        self.month.append(month)
-        self.day.append(day)
-        self.hour.append(hour)
-        self.minute.append(minute)
-        self.second.append(second)
-        self.camera_info.append(camera_info)
         self.intensity.append(intensity)
         self.snr.append(snr)
-
 
 
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
+        
         super(MainWindow, self).__init__(parent)
 
         # Configurar ventana principal
@@ -171,25 +131,15 @@ class MainWindow(QtWidgets.QMainWindow):
         p6.setLabel('bottom', 'Tiempo (s)')
         self.curve_snr = p6.plot(pen='g')
 
-        # Temperatura de baterias
-        p7 = self.win.addPlot(row=1, col=2, title="Temperaturas")
-        p7.setLabel('left', 'Temperatura (°C)')
-        p7.setLabel('bottom', 'Tiempo (s)')
-        p7.addLegend(offset=(1, 5))  # Agregar la leyenda a la derecha de la gráfica
-
-        self.curve_batt_temp_left = p7.plot(pen='r', name='Batt Temp Left')
-        self.curve_batt_temp_right = p7.plot(pen='g', name='Batt Temp Right')
-        self.curve_batt_temp_down = p7.plot(pen='b', name='Batt Temp Down')
-        self.curve_batt_temp_box = p7.plot(pen='m', name='Batt Temp Box')
-        self.curve_batt_temp_cubesat = p7.plot(pen='c', name='Batt Temp CubeSat')
-
         # Configurar temporizador
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update)
         self.timer.start(50)  # Actualizar cada 10 ms
 
         # Abrir conexión al puerto serie
-        self.ser = serial.Serial('COM14', 115200)
+        
+        if simulation is not True:
+          self.ser = serial.Serial('COM14', 115200)
 
         # Crear objeto para almacenar los datos del sensor
         self.sensor_data = SensorData()
@@ -219,48 +169,26 @@ class MainWindow(QtWidgets.QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-
-
     def update(self):
+        # Generar datos aleatorios simulados para las gráficas
+        simulated_time = len(self.sensor_data.time) + 1
+        simulated_roll = random.uniform(-180, 180)
+        simulated_pitch = random.uniform(-180, 180)
+        simulated_heading = random.uniform(0, 360)
+        simulated_temperature = random.uniform(-40, 40)
+        simulated_pressure = random.uniform(900, 1100)
+        simulated_GpsAltitude = random.uniform(0, 5000)
+        simulated_intensity = random.uniform(-100, -30)
+        simulated_snr = random.uniform(0, 20)
 
-        if self.ser.in_waiting > 0:
-            # Leer una línea completa de datos del puerto serie
-            line = self.ser.readline().decode().strip()
-            # print(line)
-            # Separar los valores de la línea utilizando comas
-            values = line.split(',')
-            # Comprobar si la línea contiene el número correcto de valores
-            if len(values) == 25:
-                 # Dentro del método update()
-                self.sensor_data.add_data_point(len(self.sensor_data.time) + 1,
-                                                    float(values[0]),
-                                                    float(values[1]),
-                                                    float(values[2]), 
-                                                    float(values[3]), 
-                                                    float(values[4]), 
-                                                    float(values[5]), 
-                                                    float(values[6]), 
-                                                    float(values[7]), 
-                                                    float(values[8]), 
-                                                    float(values[9]),
-                                                    float(values[10]), 
-                                                    float(values[11]), 
-                                                    float(values[12]), 
-                                                    float(values[13]),
-                                                    float(values[14]),     
-                                                    int(values[15]),
-                                                    int(values[16]), 
-                                                    int(values[17]), 
-                                                    int(values[18]), 
-                                                    int(values[19]), 
-                                                    int(values[20]),
-                                                    int(values[21]),
-                                                    int(values[22]),
-                                                    float(values[23]),  # Provide intensity value
-                                                    float(values[24])   # Provide snr value
-                                                    )           
-                print(self.sensor_data)
+        # Agregar datos simulados a la instancia de SensorData
+        self.sensor_data.add_data_point(simulated_time, simulated_roll, simulated_pitch,
+                                    simulated_heading, simulated_temperature,
+                                    simulated_pressure, simulated_GpsAltitude,
+                                    0, 0, 0, 0, 0, simulated_intensity, simulated_snr)
 
+        # Verificar que hay datos en las listas antes de intentar acceder a ellos
+        if len(self.sensor_data.pitch) > 0:
 
         # Actualizar la rotación del CubeSat
         self.cubeSat.resetTransform()
@@ -278,19 +206,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.curve_pitch.setData(self.sensor_data.time, self.sensor_data.pitch)
         self.curve_pressure.setData(self.sensor_data.time, self.sensor_data.pressure)
         self.curve_temperature.setData(self.sensor_data.time, self.sensor_data.temperature)
-        self.curve_batt_temp_box.setData(self.sensor_data.time, self.sensor_data.batt_temp_box)
-        self.curve_batt_temp_left.setData(self.sensor_data.time, self.sensor_data.batt_temp_left)
-        self.curve_batt_temp_right.setData(self.sensor_data.time, self.sensor_data.batt_temp_right)
-        self.curve_batt_temp_down.setData(self.sensor_data.time, self.sensor_data.batt_temp_down)
-        self.curve_batt_temp_cubesat.setData(self.sensor_data.time, self.sensor_data.batt_temp_cubesat)
         self.curve_GpsAltitude.setData(self.sensor_data.time, self.sensor_data.GpsAltitude)
         self.curve_intensity.setData(self.sensor_data.time, self.sensor_data.intensity)
         self.curve_snr.setData(self.sensor_data.time, self.sensor_data.snr)
-       
-    def closeEvent(self, event):
-        # Cerrar la conexión del puerto serie
-        self.ser.close()
-        event.accept()
 
 
 if __name__ == '__main__':
