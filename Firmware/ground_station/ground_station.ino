@@ -1,10 +1,10 @@
 // Includes the required libraries
 #include <Wire.h>
-// #include <MS5x.h>
-// #include <MKRIMU.h>
+#include <MS5x.h>
+#include <MKRIMU.h>
 #include <LoRa.h>
-// #include "Seeed_BME280.h"
-// #include <Arduino_MKRGPS.h>
+#include "Seeed_BME280.h"
+#include <Arduino_MKRGPS.h>
 //#include "CRC32.h" // CRC32 by Christopher Baker
 
 // Strucuture of data for Sensor data from the satellite
@@ -35,8 +35,7 @@ struct SensorData {
   uint8_t minute;
   uint8_t second;
   uint8_t camera_info;
-  uint8_t camera_flag;
-  // uint32_t checksum; // CRC32
+  uint32_t checksum; // CRC32
 };
 
 // Initializes the serial communication and the LoRa module
@@ -113,8 +112,6 @@ void loop() {
       Serial.print(sensorData.second);
       Serial.print(",");
       Serial.print(sensorData.camera_info);
-      Serial.print(",");
-      Serial.print(sensorData.camera_flag);
       Serial.print(",");
       Serial.print(LoRa.packetRssi());
       Serial.print(",");

@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Adafruit_Sensor.h>  // Adafruit Unified Sensor
+#include <Adafruit_Sensor.h> // Adafruit Unified Sensor
 #include <Adafruit_BNO055.h>
 #include <Adafruit_BME280.h>
 #include "DS1307.h"  // Grove RTC DS1307 - Seeed Studio
@@ -9,11 +9,7 @@
 #include <DallasTemperature.h>
 #include <SD.h>
 #include <Adafruit_SleepyDog.h>
-// #include "Arduino_CRC32.h"
-// #include <PID_v1_bc.h>
-#include <PID_v1.h>
-// #include <Arduino_MKRGPS.h>
-// #include "ArduPID.h"
+#include "Arduino_CRC32.h" 
 
 // --------------------------------------------------------------------
 // ---- CHANGE HERE THE BEHAVIOUR OF THE HEATPAD CONTROL WITH TEMPERATURE
@@ -22,28 +18,20 @@
 
 // Below this temperature the heatpad will be ON. Should be low
 #ifdef TESTING_ROOM_TEMP
-const int MIN_TEMP_START = 35;  // but this is for testing at room temperature
-#else                           // Real mission or inside a freezer
-const int MIN_TEMP_START = 5;  // Below 5 the heatpad will be on
+  const int MIN_TEMP_START = 40; // but this is for testing at room temperature
+#else // Real mission or inside a freezer
+  const int MIN_TEMP_START = 5; // Below 5 the heatpad will be on
 #endif
 
-
-#define SAMPLE_SENSOR_TIME 100
-#define SAMPLE_GPS_TIME 6000
-#define SEND_DATA_DELAY 1000
-#define WRITE_SD_DATA_DELAY 2000
-#define WATCHDOG_TIMEOUT 20000
-
-#define fileLog "tLog.txt"  //Less 8 character plus extension (.txt) for the file name
 // if any sensor is above this is the temperature, heatmats should be off
 //const int LIMIT_TEMP_HIGH = 45;
 
-const int TEMP_STEP = 5;  // Temperature steps that define the levels
+const int TEMP_STEP = 5; // Temperature steps that define the levels
 // Half way between the starting temperature and the extreme
-const int MIN_TEMP_2 = MIN_TEMP_START - TEMP_STEP;  // More levels could be added
-const int MIN_TEMP_3 = MIN_TEMP_2 - TEMP_STEP;      // More levels could be added
+const int MIN_TEMP_2       = MIN_TEMP_START - TEMP_STEP; // More levels could be added
+const int MIN_TEMP_3       = MIN_TEMP_2 - TEMP_STEP; // More levels could be added
 // If this low temperature is reached, the heatpads will be at maximum temperature
-const int MIN_TEMP_EXTREM = MIN_TEMP_3 - TEMP_STEP;  // More levels could be added
+const int MIN_TEMP_EXTREM = MIN_TEMP_3 - TEMP_STEP; // More levels could be added
 // We have defined 4 levels
 //                   Mission/Freezer  -- Room temperature experiment
 // MIN_TEMP_START  =   5 C                40   -- below this, heatpad are partially ON
@@ -52,58 +40,62 @@ const int MIN_TEMP_EXTREM = MIN_TEMP_3 - TEMP_STEP;  // More levels could be add
 // MIN_TEMP_EXTREM = -10 C                25   -- below this, heatpads are FULL-ON
 
 // There are 5 DS18B20 temperature sensors and another one of a different kind
-//
+// 
 // The temperature sensors inside the battery box should have a similar temperature
 // Especially the 3 sensors inside the mats
 // If one of them is off, it should be discarded. Double check with the other sensor
 // inside the box.
 // This will be the maximum allowable temperature difference.
 // change it if it is too high or low
-// This is for the difference with 3 the sensor temperatures, comparing the temperature of the
+// This is for the difference with 3 the sensor temperatures, comparing the temperature of the 
 // middle with the other two. If any is higher than this difference, it could be a problem in a sensor
-const int MAX_DIFF_SENS_TEMP = 5;  // if sensors temperature is larger than this, it might be a problem
-
+const int MAX_DIFF_SENS_TEMP = 5; // if sensors temperature is larger than this, it might be a problem
 
 
 // --------- END OF TEMPERATURE TESTING CHANGES -----------------------------------
 
-// Since the heatpads are rated for 12V and their batteries are 14.4V,
+// Since the heatpads are rated for 12V and their batteries are 14.4V, 
 // The maximum value for the PWM should be 212 = 255*12/14.4
 
-const int HEAT_FULL = 170;
-const int HEAT_START = (int)HEAT_FULL / 4;      // 53
-const int HEAT_2 = (int)HEAT_FULL / 2;          // 106
-const int HEAT_3 = (int)((3 * HEAT_FULL) / 4);  // 159
-const int MAX_OUTPUT_PWM = 220;
+const int HEAT_FULL  = 212;
+const int HEAT_START = (int) HEAT_FULL/4;  // 53
+const int HEAT_2     = (int) HEAT_FULL/2;  // 106
+const int HEAT_3     = (int) ((3*HEAT_FULL)/4);  // 159
 
 
+#define SAMPLE_SENSOR_TIME 100
+#define SEND_DATA_DELAY 50
+#define WRITE_SD_DATA_DELAY 500
+#define WATCHDOG_TIMEOUT 12000
+
+#define fileLog "lab.txt"         //Less 8 character plus extension (.txt) for the file name
 
 // Pin were the PWM output to the MOSFET for the heatmats:
-const int PIN_HEATMATS = 1;  // cannot be 0, because it is used by the IMU
+const int PIN_HEATMATS = 1; // cannot be 0, because it is used by the IMU
 
 // Pin were the 1-Wire bus with the temp sensors DS18B20
 const int PIN_ONEWIRE = 2;
 
 //Information camera capturing and memory size available
-const int GPIO_C = 5;    // GPIO pin for the camera capturing signal
+const int GPIO_C = 5;  // GPIO pin for the camera capturing signal
 const int GPIO_LSB = 6;  // GPIO pin for the less significative bit of the memory capacity signal
 const int GPIO_MSB = 7;  // GPIO pin for the less significative bit of the memory capacity signal
 
 
-// These are the address of the 5 DS18B20 temperature sensors, their code has been requested
+// These are the address of the 5 DS18B20 temperature sensors, their code has been requested 
 // with the sketch: detect_ds1820_tempsens_id.ino
-DeviceAddress TEMP_CUBESAT_ADDR = { 0x28, 0xFF, 0x10, 0x4B, 0x20, 0x18, 0x01, 0x10 };    // inside cubesat
-DeviceAddress TEMP_BAT_BOX_ADDR = { 0x28, 0x55, 0xB3, 0x95, 0xF0, 0x01, 0x3C, 0xEE };    // inside battery box
-DeviceAddress TEMP_BAT_LEFT_ADDR = { 0x28, 0x37, 0x50, 0x95, 0xF0, 0x01, 0x3C, 0xD7 };   // inside battery box, in left heatmat
-DeviceAddress TEMP_BAT_RIGHT_ADDR = { 0x28, 0x53, 0x6E, 0x95, 0xF0, 0x01, 0x3C, 0xEE };  // inside battery box, in right heatmat
-DeviceAddress TEMP_BAT_DOWN_ADDR = { 0x28, 0x7A, 0xEF, 0x95, 0xF0, 0x01, 0x3C, 0xC8 };   // inside battery box, in bottom heatmat
-char DS18_NR = 5;                                                                        // Number of DS18 sensors
+DeviceAddress TEMP_CUBESAT_ADDR   = {0x28, 0xFF, 0x10, 0x4B, 0x20, 0x18, 0x01, 0x10}; // inside cubesat
+DeviceAddress TEMP_BAT_BOX_ADDR   = {0x28, 0x55, 0xB3, 0x95, 0xF0, 0x01, 0x3C, 0xEE};  // inside battery box
+DeviceAddress TEMP_BAT_LEFT_ADDR  = {0x28, 0x37, 0x50, 0x95, 0xF0, 0x01, 0x3C, 0xD7}; // inside battery box, in left heatmat
+DeviceAddress TEMP_BAT_RIGHT_ADDR = {0x28, 0x53, 0x6E, 0x95, 0xF0, 0x01, 0x3C, 0xEE}; // inside battery box, in right heatmat
+DeviceAddress TEMP_BAT_DOWN_ADDR  = {0x28, 0x7A, 0xEF, 0x95, 0xF0, 0x01, 0x3C, 0xC8}; // inside battery box, in bottom heatmat
+char DS18_NR = 5; // Number of DS18 sensors
 // variables that check if the DS18B20 temperature sensors have been found
-bool temp_cubesat_found = false;
-bool temp_bat_box_found = false;
-bool temp_bat_left_found = false;
+bool temp_cubesat_found   = false;
+bool temp_bat_box_found   = false;
+bool temp_bat_left_found  = false;
 bool temp_bat_right_found = false;
-bool temp_bat_down_found = false;
+bool temp_bat_down_found  = false;
 
 
 
@@ -111,21 +103,19 @@ bool temp_bat_down_found = false;
 // default seems to be the last that has been set.
 // with  9 it seems that it is 0.50 C resolution
 // with 10 it seems that it is 0.25 C resolution
-const uint8_t SENSOR_BIT_RESOL = 11;
+const uint8_t SENSOR_BIT_RESOL = 9;
 
 // Instance to classes OneWire y DallasTemperature
 OneWire OneWireObj(PIN_ONEWIRE);
 DallasTemperature sensor_DS18(&OneWireObj);
 
-// ArduPID myController;
-
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 Adafruit_BME280 bme;
 
 SFE_UBLOX_GNSS myGNSS;
-DS1307 clock;  //define a object of DS1307 class
+DS1307 clock;               //define a object of DS1307 class
 
-// Arduino_CRC32 crc32;
+Arduino_CRC32 crc32;
 
 struct SensorData {
 
@@ -133,29 +123,29 @@ struct SensorData {
   float pitch;
   float heading;
   // 5 DS18B20 temp sensors
-  float battTempLeft;     // Temperature of batteries inside heatmat, at the left, looking from the camera
-  float battTempRight;    // Temperature of batteries inside heatmat, at the right, looking from the camera
-  float battTempDown;     // Temperature of batteries inside heatmat, at the bottom, opposite to the battery box openning
-  float battTempBox;      // Temperature of batteries inside the box, outside the heatmats
-  float TempCubesatDS18;  // Temperature of the cubesat, taken from the DS18B20 sensor
+  float battTempLeft; // Temperature of batteries inside heatmat, at the left, looking from the camera
+  float battTempRight; // Temperature of batteries inside heatmat, at the right, looking from the camera
+  float battTempDown; // Temperature of batteries inside heatmat, at the bottom, opposite to the battery box openning
+  float battTempBox; // Temperature of batteries inside the box, outside the heatmats
+  float TempCubesatDS18; // Temperature of the cubesat, taken from the DS18B20 sensor
   // the other temperature sensor, not DS18B20
   float temperature;
   float pressure;
   float humidity;
   float GpsAltitude;
+  
   float latitude;
   float longitude;
   float speed;
   uint8_t numSatellites;
-  uint16_t year;
+  uint16_t year; 
   uint8_t month;
   uint8_t day;
   uint8_t hour;
   uint8_t minute;
   uint8_t second;
   uint8_t camera_info;
-  uint8_t camera_flag;
-  // uint32_t checksum;
+  uint32_t checksum;
 };
 
 
@@ -164,15 +154,12 @@ SensorData sensorData;
 // Archivo en la tarjeta SD
 File dataFile;
 
-// dataFile = SD.open(fileLog, FILE_WRITE);
+//dataFile = SD.open("sensor_data.txt", FILE_WRITE);
 
-// Definir el contador para el sampling del barometro , IMU y sensores de temperatura
+// Definir el contador para el sampling del barometro y GPS
 uint32_t sample_counter = 0;
 
-//Definir el contador para el sampling del GPS
-uint32_t GPS_sample_counter = 0;
-
-// Definir el contador para el envio de datos
+// Definir el contador para el envio de datos 
 uint32_t send_data_timer = 0;
 
 // Definir el contador de tiempo para la escritura en la SD de la trama de datos
@@ -180,7 +167,7 @@ uint32_t write_sd_data_timer = 0;
 
 bool update_time = true;
 
-File openDataFile(const char *filename);
+File openDataFile(const char* filename);
 
 void saveDataToSDCard(File dataFile, SensorData &sensorData);
 bool temperature_sensor_init();
@@ -188,29 +175,21 @@ void IMU_calibration();
 void IMU_get_values(SensorData &sensorData);
 void print_dev_addr(DeviceAddress addr);
 bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2);
-int temp_ctrl(int temp_left, int temp_down, int temp_right);
+int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box);
 
-// Constantes de configuración del PID
-double setpoint = 20.0;  // Temperatura deseada en grados Celsius
-double kp = 0.9;         // Coeficiente proporcional
-double ki = 0.001;       // Coeficiente integral
-double kd = 0.4;         // Coeficiente derivativo
+// Parámetros del controlador PID
+const double kp = 1.0;   // Coeficiente proporcional
+const double ki = 0.2;   // Coeficiente integral
+const double kd = 0.01;  // Coeficiente derivativo
 
-//Define the aggressive and conservative Tuning Parameters
-double aggKp = 4, aggKi = 0.2, aggKd = 1;
-double consKp = 1, consKi = 0.05, consKd = 0.25;
-
-// Variables globales para el controlador PID
-double input, output;
-
-//Specify the links and initial tuning parameters
-PID myPID(&input, &output, &setpoint, consKp, consKi, consKd, DIRECT);
-
-
+// Variables para el controlador PID
+double setpoint = MIN_TEMP_START;  // Temperatura objetivo
+double prev_error = 0.0;
+double integral = 0.0;
 
 void setup() {
 
-  Watchdog.disable();
+  Watchdog.disable(); 
   Serial.begin(115200);
   delay(2000);
 
@@ -219,19 +198,16 @@ void setup() {
   pinMode(GPIO_LSB, INPUT_PULLUP);
   pinMode(GPIO_MSB, INPUT_PULLUP);
 
-
+ 
   // Setup the output to control the heatpad, which goes to the MOSFET
-  pinMode(PIN_HEATMATS, OUTPUT);    // it has to be a PWM pin
-  digitalWrite(PIN_HEATMATS, LOW);  // turn-off the heatmats, until we have temperature values
-
-  // Inicialización del controlador PID
-  myPID.SetMode(AUTOMATIC);
+  pinMode(PIN_HEATMATS, OUTPUT);  // it has to be a PWM pin
+  digitalWrite(PIN_HEATMATS, LOW); // turn-off the heatmats, until we have temperature values
 
   clock.begin();
 
   Serial.println("Bentayga I. System init");
 
-  temperature_sensor_init();  // Initializacion of the 5 DS18B20 temperature sensors
+  temperature_sensor_init(); // Initializacion of the 5 DS18B20 temperature sensors
 
   // Inicializar la tarjeta SD
   if (!SD.begin(4)) {
@@ -240,24 +216,20 @@ void setup() {
   } else {
 
     Serial.println("SD card initialized.      Status: OK");
-    dataFile = openDataFile(fileLog);
+    dataFile=openDataFile(fileLog);
     dataFile.println("Reset WatchDog");
     dataFile.close();
-  }
 
-  if (!bno.begin()) {
+  }
+  if (!bno.begin())
+  {
     Serial.println("ERROR: BNO055 NOT detected");
 
   } else {
     Serial.println("BNO55 IMU sensor connected.Status: OK");
     IMU_calibration();
-  }
 
-  //  if (!GPS.begin()) {
-  //   Serial.println("Failed to initialize GPS!");
-  // } else {
-  //   Serial.println("GPS System init.          Status: OK");
-  // }
+  }
 
   if (!myGNSS.begin()) {
     Serial.println("Failed to initialize GPS!");
@@ -265,7 +237,7 @@ void setup() {
     Serial.println("GPS System init.          Status : OK");
   }
 
-  if (!bme.begin(0x76)) {  // la dirección puede ser 0x77 dependiendo de tu módulo
+  if (!bme.begin(0x76)) { // la dirección puede ser 0x77 dependiendo de tu módulo
     Serial.println("ERROR: Failed to initialize the barometer BME280");
   } else {
     Serial.println("BME280 Sensor.            Status: OK");
@@ -277,89 +249,75 @@ void setup() {
     Serial.println("LoRa Transceiver.         Status: OK");
   }
 
-  LoRa.setTxPower(20);
+  LoRa.setTxPower(17);
   LoRa.setSpreadingFactor(12);
-
+  
   delay(4000);
-
+  
   //Watchdog.enable for the setup and loop
   Watchdog.enable(WATCHDOG_TIMEOUT);
-
+  
   sample_counter = millis();
+
 }
 
 void loop() {
 
+  
   IMU_get_values(sensorData);
 
-  // if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
+  if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
 
-  // Abrir el archivo en modo de escritura
-  Serial.println("Before barometer measure");
-  sensorData.temperature = bme.readTemperature();
-  sensorData.humidity = bme.readHumidity();
-  sensorData.pressure = bme.readPressure() / 100.0;
-  sensor_DS18.requestTemperatures();  //Se envia el comando para leer la temperatura
+    // Abrir el archivo en modo de escritura
 
-  // Reading the 5 DS18B20 sensors
-  sensorData.TempCubesatDS18 = sensor_DS18.getTempC(TEMP_CUBESAT_ADDR);
-  sensorData.battTempBox = sensor_DS18.getTempC(TEMP_BAT_BOX_ADDR);
-  sensorData.battTempLeft = sensor_DS18.getTempC(TEMP_BAT_LEFT_ADDR);
-  sensorData.battTempRight = sensor_DS18.getTempC(TEMP_BAT_RIGHT_ADDR);
-  sensorData.battTempDown = sensor_DS18.getTempC(TEMP_BAT_DOWN_ADDR);
+    sensorData.temperature = bme.readTemperature();
+    sensorData.humidity = bme.readHumidity();
+    sensorData.pressure = bme.readPressure() / 100.0;
+    sensor_DS18.requestTemperatures();   //Se envia el comando para leer la temperatura
 
-  // int temp_left = (int)round(sensorData.battTempLeft);
-  // int temp_down = (int)round(sensorData.battTempDown);
-  // int temp_right = (int)round(sensorData.battTempRight);
-  // int temp_box = (int)round(sensorData.battTempBox);
+    // Reading the 5 DS18B20 sensors
+    sensorData.TempCubesatDS18 = sensor_DS18.getTempC(TEMP_CUBESAT_ADDR);
+    sensorData.battTempBox     = sensor_DS18.getTempC(TEMP_BAT_BOX_ADDR);
+    sensorData.battTempLeft    = sensor_DS18.getTempC(TEMP_BAT_LEFT_ADDR);
+    sensorData.battTempRight   = sensor_DS18.getTempC(TEMP_BAT_RIGHT_ADDR);
+    sensorData.battTempDown    = sensor_DS18.getTempC(TEMP_BAT_DOWN_ADDR);
 
-  // heatmat temperature control
-  temp_ctrl(sensorData.battTempLeft, sensorData.battTempDown, sensorData.battTempRight);
+    int temp_left  = (int) round(sensorData.battTempLeft);
+    int temp_down  = (int) round(sensorData.battTempDown);
+    int temp_right = (int) round(sensorData.battTempRight);
+    int temp_box   = (int) round(sensorData.battTempBox);
 
+    // heatmat temperature control
+    temp_ctrl (temp_left, temp_down, temp_right, temp_box);  
 
-  // if(millis() - GPS_sample_counter >SAMPLE_GPS_TIME){
+    sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
+    sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
+    sensorData.GpsAltitude = myGNSS.getAltitude() / 1000.0;
+    sensorData.speed = myGNSS.getGroundSpeed() / 1000.0;
+    sensorData.numSatellites = myGNSS.getSIV();
 
-  //   Serial.println("Before GPS measure");
-  //   sensorData.latitude = GPS.latitude();
-  //   sensorData.longitude = GPS.longitude();
-  //   sensorData.GpsAltitude = GPS.altitude();
-  //   sensorData.speed = GPS.speed();
-  //   sensorData.numSatellites = GPS.satellites();
-  //   }
+    sensorData.camera_info = get_camera_info();
 
-  // if(millis() - GPS_sample_counter >SAMPLE_GPS_TIME){
-  // Serial.println("Before GPS measure");
-  // sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
-  // sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
-  // sensorData.GpsAltitude = myGNSS.getAltitude() / 1000.0;
-  // sensorData.speed = myGNSS.getGroundSpeed() / 1000.0;
-  // sensorData.numSatellites = myGNSS.getSIV();
-  // GPS_sample_counter = millis();
-  // delay(10);
-  // }
+    sensorData.checksum = crc32.calc((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum));
 
-  sensorData.camera_info = get_camera_info();
+    if (update_time){
+      if (myGNSS.getTimeValid()) {
+      
+      clock.fillByYMD(myGNSS.getYear(), myGNSS.getMonth(), myGNSS.getDay()); //Jan 19,2013
+      clock.fillByHMS(myGNSS.getHour(), myGNSS.getMinute(), myGNSS.getSecond()); //15:28 30"
+      // clock.fillDayOfWeek(SAT);//Saturday
+      clock.setTime();//write time to the RTC chip
+      Serial.println("TIME GPS SYNC OK");
+      update_time= false;
+      }
+    }
 
-  // sensorData.checksum = crc32.calc((uint8_t *)&sensorData, sizeof(sensorData) - sizeof(sensorData.checksum));
+    sample_counter = millis();
 
-  // if (update_time) {
-  //   if (myGNSS.getTimeValid()) {
+  }
 
-  //     clock.fillByYMD(myGNSS.getYear(), myGNSS.getMonth(), myGNSS.getDay());      //Jan 19,2013
-  //     clock.fillByHMS(myGNSS.getHour(), myGNSS.getMinute(), myGNSS.getSecond());  //15:28 30"
-  //     // clock.fillDayOfWeek(SAT);//Saturday
-  //     clock.setTime();  //write time to the RTC chip
-  //     Serial.println("TIME GPS SYNC OK");
-  //     update_time = false;
-  //   }
-  // }
-
-  //   sample_counter = millis();
-  // }
-
-  Serial.println("Before clock get time");
   clock.getTime();
-  sensorData.year = clock.year + 2000;
+  sensorData.year = clock.year +  2000;
   sensorData.month = clock.month;
   sensorData.day = clock.dayOfMonth;
   sensorData.hour = clock.hour;
@@ -367,25 +325,43 @@ void loop() {
   sensorData.second = clock.second;
 
 
-  String data = String(sensorData.day) + "/" + String(sensorData.month) + "/" + String(sensorData.year) + " " + String(sensorData.hour) + ":" + String(sensorData.minute) + ":" + String(sensorData.second) + "\t" + "Roll:" + String(sensorData.roll) + "\t" + "Pitch:" + String(sensorData.pitch) + "\t" + "Heading:" + String(sensorData.heading) + "\t" + "Temp-batt-Left:" + String(sensorData.battTempLeft) + "\t" + "Temp-batt-Right:" + String(sensorData.battTempRight) + "\t" + "Temp-batt-Down:" + String(sensorData.battTempDown) + "\t" + "Temp-batt-Box:" + String(sensorData.battTempBox) + "\t" + "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "\n" + "Temperature:" + String(sensorData.temperature) + "\t" + "Humidity:" + String(sensorData.humidity) + "\t" + "Pressure:" + String(sensorData.pressure) + "\t" + "GpsAltitude:" + String(sensorData.GpsAltitude) + "\t" + "Latitude:" + String(sensorData.latitude, 6) + "\t" + "Longitude:" + String(sensorData.longitude, 6) + "\t" + "Speed:" + String(sensorData.speed) + "\t" + "NumSatellites:" + String(sensorData.numSatellites) + "\t" + "Camera:" + String(sensorData.camera_info) + "\t" + "Capturing:" + String(sensorData.camera_flag);
-  //  + "," + "CheckSum:" + String(sensorData.checksum, HEX);
+  String data =
+    String(sensorData.day) + "/" + String(sensorData.month) + "/" + String(sensorData.year) + 
+    " " + String(sensorData.hour) + ":" + String(sensorData.minute) + ":" + String(sensorData.second) + "\t" +
+    "Roll:" + String(sensorData.roll) + "," +
+    "Pitch:" + String(sensorData.pitch) + "," +
+    "Heading:" + String(sensorData.heading) + "," +
+    "Temp-batt-Left:" + String(sensorData.battTempLeft) + "," +
+    "Temp-batt-Right:" + String(sensorData.battTempRight) + "," +
+    "Temp-batt-Down:" + String(sensorData.battTempDown) + "," +
+    "Temp-batt-Box:" + String(sensorData.battTempBox) + "," +
+    "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "," +    
+    "Temperature:" + String(sensorData.temperature) + "," +
+    "Humidity:" + String(sensorData.humidity) + "," +
+    "Pressure:" + String(sensorData.pressure) + "," +
+    "GpsAltitude:" + String(sensorData.GpsAltitude) + "," +
+    "Latitude:" + String(sensorData.latitude, 6) + "," +
+    "Longitude:" + String(sensorData.longitude, 6) + "," +
+    "Speed:" + String(sensorData.speed) + "," +
+    "NumSatellites:" + String(sensorData.numSatellites) + "," +
+    "Camera:" + String(sensorData.camera_info) + "," +
+    "CheckSum:" + String(sensorData.checksum, HEX); 
 
-  if (millis() - send_data_timer >= SEND_DATA_DELAY) {
-
+  if(millis() - send_data_timer >= SEND_DATA_DELAY){
+  
     Serial.println(data);
     packData_and_send(sensorData);
     send_data_timer = millis();
-  }
 
-  if (millis() - write_sd_data_timer >= WRITE_SD_DATA_DELAY) {
+  }  
 
-    Serial.println("Before write SD");
+  if(millis() - write_sd_data_timer >= WRITE_SD_DATA_DELAY){
     saveDataToSDCard(openDataFile(fileLog), sensorData);
     write_sd_data_timer = millis();
-    delay(5);
   }
-
+  
   Watchdog.reset();
+
 }
 
 // print a One Wire device address a DeviceAddress is a 8 byte array
@@ -401,14 +377,14 @@ void prnt_dev_addr(DeviceAddress addr) {
 
 void packData_and_send(SensorData sensorData) {
   LoRa.beginPacket();
-  LoRa.write((uint8_t *)&sensorData, sizeof(SensorData));
+  LoRa.write((uint8_t*)&sensorData, sizeof(SensorData));
   LoRa.endPacket();
 }
 
 void IMU_get_values(SensorData &sensorData) {
 
   //could add VECTOR_ACCELEROMETER, VECTOR_MAGNETOMETER,VECTOR_GRAVITY...
-  sensors_event_t orientationData, angVelocityData, linearAccelData, magnetometerData, accelerometerData, gravityData;
+  sensors_event_t orientationData , angVelocityData , linearAccelData, magnetometerData, accelerometerData, gravityData;
 
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
@@ -420,6 +396,7 @@ void IMU_get_values(SensorData &sensorData) {
   sensorData.roll = orientationData.orientation.y;
   sensorData.pitch = orientationData.orientation.z;
   sensorData.heading = orientationData.orientation.x;
+
 }
 
 void IMU_calibration() {
@@ -435,6 +412,7 @@ void IMU_calibration() {
   Serial.print(accel);
   Serial.print(" Mag=");
   Serial.println(mag);
+
 }
 
 bool temperature_sensor_init() {
@@ -466,13 +444,13 @@ bool temperature_sensor_init() {
   // If found any, show address
   if (numSensorsFound >= 1) {
     for (byte sens_i = 0; sens_i < numSensorsFound; sens_i++) {
-      DeviceAddress sens_temp_addr;  // 8 byte array (uint8_t)
+      DeviceAddress sens_temp_addr; // 8 byte array (uint8_t)
       // get adddres of the sensor
       sensor_DS18.getAddress(sens_temp_addr, sens_i);
       // compare the address with the sensors
-      if (comp_dev_addr(sens_temp_addr, TEMP_CUBESAT_ADDR)) {
+      if        (comp_dev_addr(sens_temp_addr, TEMP_CUBESAT_ADDR)) {
         temp_cubesat_found = true;
-        Serial.print("General cubesat sensor address found: ");  // inside cubesat, outside battery box
+        Serial.print("General cubesat sensor address found: "); // inside cubesat, outside battery box
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_BOX_ADDR)) {
         temp_bat_box_found = true;
         Serial.print("Battery box sensor address found:     ");
@@ -489,29 +467,29 @@ bool temperature_sensor_init() {
         Serial.print("Unkown temperature sensor address found:    ");
       }
       // print the address
-      prnt_dev_addr(sens_temp_addr);  // print the address
+      prnt_dev_addr (sens_temp_addr); // print the address
     }
 
     // after the loop, check if there is a missing temperature sensor:
     if (!temp_cubesat_found) {
       Serial.print("WARNING: General cubesat DS18B20 temperature sensor address not found, address:  ");
-      prnt_dev_addr(TEMP_CUBESAT_ADDR);
+      prnt_dev_addr (TEMP_CUBESAT_ADDR);
     }
     if (!temp_bat_box_found) {
       Serial.print("WARNING: Battery box DS18B20 temperature sensor address not found, address:  ");
-      prnt_dev_addr(TEMP_BAT_BOX_ADDR);
+      prnt_dev_addr (TEMP_BAT_BOX_ADDR);
     }
     if (!temp_bat_right_found) {
       Serial.print("WARNING: Rigth heatmat DS18B20 temperature sensor address not found, address:  ");
-      prnt_dev_addr(TEMP_BAT_RIGHT_ADDR);
+      prnt_dev_addr (TEMP_BAT_RIGHT_ADDR);
     }
     if (!temp_bat_left_found) {
       Serial.print("WARNING: Left heatmat DS18B20 temperature sensor address not found, address:  ");
-      prnt_dev_addr(TEMP_BAT_LEFT_ADDR);
+      prnt_dev_addr (TEMP_BAT_LEFT_ADDR);
     }
     if (!temp_bat_down_found) {
       Serial.print("WARNING: Down heatmat DS18B20 temperature sensor address not found, address:  ");
-      prnt_dev_addr(TEMP_BAT_DOWN_ADDR);
+      prnt_dev_addr (TEMP_BAT_DOWN_ADDR);
     }
 
     return true;
@@ -519,9 +497,10 @@ bool temperature_sensor_init() {
     Serial.println("No DS18B20 temperature sensors found");
     return false;
   }
+
 }
 
-File openDataFile(const char *filename) {
+File openDataFile(const char* filename) {
   File dataFile = SD.open(filename, FILE_WRITE);
   if (!dataFile) {
     Serial.print("ERROR: Failed to open data file: ");
@@ -543,122 +522,98 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
   dataFile.print(sensorData.minute);
   dataFile.print(":");
   dataFile.print(sensorData.second);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.roll);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.pitch);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.heading);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.battTempLeft);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.battTempRight);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.battTempDown);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.battTempBox);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.TempCubesatDS18);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.temperature);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.humidity);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.pressure);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.GpsAltitude);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.latitude, 6);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.longitude, 6);
-  dataFile.print("\t");
+  dataFile.print(",");
   dataFile.print(sensorData.speed);
-  dataFile.print("\t");
-  dataFile.print(sensorData.numSatellites);
-  dataFile.print("\t");
+  dataFile.print(",");
+  dataFile.println(sensorData.numSatellites);
+  dataFile.print(",");
   dataFile.println(sensorData.camera_info);
 
 
   dataFile.close();
+
 }
 
-uint8_t get_camera_info() {
+uint8_t get_camera_info(){
 
   // Leer los valores de las señales de los puertos GPIO
-  sensorData.camera_flag = digitalRead(GPIO_C);
-  uint8_t memoryCapacityLSB = digitalRead(GPIO_LSB);
-  uint8_t memoryCapacityMSB = digitalRead(GPIO_MSB);
+  int cameraFlag = digitalRead(GPIO_C);
+  int memoryCapacityLSB = digitalRead(GPIO_LSB);    
+  int memoryCapacityMSB = digitalRead(GPIO_MSB);
 
   // Codificar los valores en un byte
   byte encodedData = 0x00;
-  encodedData = encodedData | (memoryCapacityMSB << 5) | (memoryCapacityLSB << 4) | sensorData.camera_flag;
+  encodedData =  encodedData | (memoryCapacityMSB << 5) | (memoryCapacityLSB << 4) | cameraFlag;
 
   // Imprimir el valor codificado en binario
   //Serial.println(encodedData, HEX);
   return encodedData;
+
 }
 
 // compare two One Wire device addressess
 // a DeviceAddress is a 8 byte array
-bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2) {
-  for (uint8_t i = 0; i < 8; i++) {
+bool comp_dev_addr(DeviceAddress addr1, DeviceAddress addr2){
+ for (uint8_t i = 0; i < 8; i++){
     if (addr1[i] != addr2[i]) {
       return false;
     }
-  }
-  return true;  // if here, all are equal
+ }
+ return true; // if here, all are equal
 }
 
 //Test PID function to control the thermal Pad
-int temp_ctrl(float temp_left, float temp_down, float temp_right) {
-  double current_temp = (double)(temp_left + temp_down + temp_right) / 3.0;
+int temp_ctrl(int temp_left, int temp_down, int temp_right, int temp_box) {
+  double current_temp = (temp_left + temp_down + temp_right) / 3.0;
+  double error = setpoint - current_temp;
+  
+  integral += error;
+  double derivative = error - prev_error;
 
-  // Actualización de las variables para el controlador PID
-  input = current_temp;
-
-  double gap = abs(setpoint - input);  //distance away from setpoint
-  if (gap < 2) {                       //we're close to setpoint, use conservative tuning parameters
-    myPID.SetTunings(consKp, consKi, consKd);
-  } else {
-    //we're far from setpoint, use aggressive tuning parameters
-    myPID.SetTunings(aggKp, aggKi, aggKd);
+  double output = kp * error + ki * integral + kd * derivative;
+  prev_error = error;
+  
+  // Limitar el valor de salida
+  if (output > HEAT_FULL) {
+    output = HEAT_FULL;
+  } else if (output < 0) {
+    output = 0;
   }
 
-
-  // Cálculo de la salida del controlador PID
-  myPID.Compute();
-  // myController.compute();
-  // Ajuste del PWM en el MOSFET para controlar la potencia
-  // int pwm_value = map(output, 0, HEAT_FULL, 0, 100);  // Ajusta los valores si es necesario
-
-  // Limitar el valor de salida
-  // if (output > HEAT_FULL) {
-  //   output = HEAT_FULL;
-  // } else if (output < 0) {
-  //   output = 0;
-  // }
-
-  // if(input>(setpoint-2.0)){
-  //   output=0;
-  // }
-
-  Serial.print("PID Setpoint");
-  Serial.print(setpoint);
-  Serial.print("\t");
-  Serial.print("PID Output");
-  Serial.print(output);
-  Serial.print("\t");
-  Serial.print("Input PID:");
-  Serial.print(input);
-  Serial.print("\t");
-  Serial.println();
-
-  // Write the value to PWM port
   analogWrite(PIN_HEATMATS, output);
-
-
+  
   return 0;  // No hay error
 }
+
+
 
 
 //// temperature control of the heatmats, returns 1 if there is a problem, 0 if ok
@@ -702,7 +657,7 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //
 //  int temp_diff_high = highest_temp - mid_temp;
 //  int temp_diff_low  = mid_temp - lowest_temp;
-//
+//  
 //  int comm_temp; // command temperature
 //  if (temp_diff_high > MAX_DIFF_SENS_TEMP) {
 //    if (temp_diff_low > MAX_DIFF_SENS_TEMP) {
@@ -742,7 +697,7 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //    comm_temp = (temp_left + temp_down + temp_right)/3;
 //    temp_error = 0;
 //  }
-//
+//    
 //  Serial.print("Avg Bat temp: ");
 //  Serial.println(comm_temp);
 //  if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
@@ -763,8 +718,7 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //  } else { // batteries beyond the limit
 //    analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
 //    Serial.print("Heat level FULL, PWM value: ");
-//    Serial.println(HEAT_FULL);
+//    Serial.println(HEAT_FULL);    
 //  }
 //  return temp_error;
 // }
- 
