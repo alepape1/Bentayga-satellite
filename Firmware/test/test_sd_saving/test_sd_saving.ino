@@ -151,7 +151,7 @@ void setup() {
       Serial.println(filePath);
 
     } else {
-      Serial.println("ERROR: Failed to initialize SD card!");
+      Serial.println("ERROR: Failed to create folder!");
     }
   }
 
@@ -212,7 +212,7 @@ void loop() {
       strcat(filePath, "/");
       strcat(filePath, fileName);
       dataFile = openDataFile(filePath);
-      dataFile.println("Reset WatchDog");
+      dataFile.println("Reset Filesize");
       dataFile.close();
       Serial.print("Using path ");
       Serial.println(filePath);
@@ -295,7 +295,7 @@ void randomGPSData(SensorData &sensorData)
   sensorData.numSatellites = random(3, 30);
 }
 
-/* @brief Store the sensors data in the current file of the SD
+/* @brief Store the sensors data in the current file of the SDand close the file
 *  @param [in] dataFile - File object in which the data will be stored 
 *  @param [in] sensorData - Struct with all the data adquired by the sensors
 */
