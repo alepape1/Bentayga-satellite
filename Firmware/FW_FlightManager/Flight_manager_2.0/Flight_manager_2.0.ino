@@ -33,10 +33,14 @@ const int MIN_TEMP_START = 5;  // Below 5 the heatpad will be on
 #define SEND_DATA_DELAY 1000
 #define WRITE_SD_DATA_DELAY 2000
 #define WATCHDOG_TIMEOUT 20000
+#define NEW_SD_FILE 200
 
-#define fileLog "tLog.txt"  //Less 8 character plus extension (.txt) for the file name
-// if any sensor is above this is the temperature, heatmats should be off
-//const int LIMIT_TEMP_HIGH = 45;
+// This value is set using this constant
+// in the example of the SD card SHILED 
+// https://docs.arduino.cc/tutorials/mkr-sd-proto-shield/mkr-sd-proto-shield-data-logger
+// It seems that you can use any unused pin to do this
+#define SDCARD_SS_PIN 4 
+const int chipSelect = SDCARD_SS_PIN;
 
 const int TEMP_STEP = 5;  // Temperature steps that define the levels
 // Half way between the starting temperature and the extreme
@@ -161,7 +165,11 @@ struct SensorData {
 
 SensorData sensorData;
 
-// Archivo en la tarjeta SD
+// File in the SD folder and file/folder names
+char folderName[10];
+char fileName[10];
+char filePath[22];
+
 File dataFile;
 
 // dataFile = SD.open(fileLog, FILE_WRITE);
@@ -178,11 +186,16 @@ uint32_t send_data_timer = 0;
 // Definir el contador de tiempo para la escritura en la SD de la trama de datos
 uint32_t write_sd_data_timer = 0;
 
+// Counter that is used to monitor the numbers of lines since the last new file
+uint32_t sd_writes_counter = 0;
+
 bool update_time = true;
 
 File openDataFile(const char *filename);
-
 void saveDataToSDCard(File dataFile, SensorData &sensorData);
+void generateFolderName(char * outName, DS1307 &clockData);
+void generateFileName(char * outName, DS1307 &clockData);
+
 bool temperature_sensor_init();
 void IMU_calibration();
 void IMU_get_values(SensorData &sensorData);
@@ -234,15 +247,34 @@ void setup() {
   temperature_sensor_init();  // Initializacion of the 5 DS18B20 temperature sensors
 
   // Inicializar la tarjeta SD
-  if (!SD.begin(4)) {
+  if (!SD.begin(chipSelect)) {
+    //Serial.println(SD.begin(4));
     Serial.println("ERROR: Failed to initialize SD card!");
-
   } else {
-
     Serial.println("SD card initialized.      Status: OK");
-    dataFile = openDataFile(fileLog);
-    dataFile.println("Reset WatchDog");
-    dataFile.close();
+    generateFolderName(folderName, clock);
+    // Checking if folder exists or the script needs to create it
+    if(!SD.exists(folderName)) {
+      Serial.println("Creating directory...");
+      SD.mkdir(folderName);
+    }
+    // Checks if the directory was correctly created
+    if(SD.exists(folderName)) {
+      Serial.print("Using directory ");
+      Serial.println(folderName);
+      generateFileName(fileName, clock);
+      strcpy(filePath, folderName);
+      strcat(filePath, "/");
+      strcat(filePath, fileName);
+      dataFile = openDataFile(filePath);
+      dataFile.println("Reset WatchDog");
+      dataFile.close();
+      Serial.print("Using path ");
+      Serial.println(filePath);
+
+    } else {
+      Serial.println("ERROR: Failed to create folder!");
+    }
   }
 
   if (!bno.begin()) {
@@ -378,10 +410,23 @@ void loop() {
   }
 
   if (millis() - write_sd_data_timer >= WRITE_SD_DATA_DELAY) {
-
     Serial.println("Before write SD");
-    saveDataToSDCard(openDataFile(fileLog), sensorData);
+    saveDataToSDCard(openDataFile(filePath), sensorData);
     write_sd_data_timer = millis();
+    sd_writes_counter++;
+    if (sd_writes_counter > NEW_SD_FILE) {
+      generateFileName(fileName, clock);
+      strcpy(filePath, folderName);
+      strcat(filePath, "/");
+      strcat(filePath, fileName);
+      dataFile = openDataFile(filePath);
+      dataFile.println("Reset Filesize");
+      dataFile.close();
+      Serial.print("Using path ");
+      Serial.println(filePath);
+      sd_writes_counter = 0;
+    }
+
     delay(5);
   }
 
@@ -521,6 +566,10 @@ bool temperature_sensor_init() {
   }
 }
 
+/* @brief Open a file in the SD and checks if it exist
+*  @param [in] filename - Path of the file to be opened
+*  @return File - The SD file object correctly opened
+*/
 File openDataFile(const char *filename) {
   File dataFile = SD.open(filename, FILE_WRITE);
   if (!dataFile) {
@@ -530,6 +579,10 @@ File openDataFile(const char *filename) {
   return dataFile;
 }
 
+/* @brief Store the sensors data in the current file of the SD and close the file
+*  @param [in] dataFile - File object in which the data will be stored 
+*  @param [in] sensorData - Struct with all the data adquired by the sensors
+*/
 void saveDataToSDCard(File dataFile, SensorData &sensorData) {
 
   dataFile.print(sensorData.year);
@@ -580,6 +633,38 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
 
 
   dataFile.close();
+}
+
+/* @brief Read the clock data and create a folder name with it
+*  @param [out] outName - The name of the folder 
+*  @param [in] clockData - RTC object with access to the timestamp
+*/
+void generateFolderName(char *outName, DS1307 &clockData)
+{
+  char strMonth[5];
+  char strDay[5];
+  clock.getTime();
+  itoa(clockData.month, strMonth, 10);
+  itoa(clockData.dayOfMonth, strDay, 10);
+  strcpy(outName, strMonth);
+  strcat(outName, "_");
+  strcat(outName, strDay);
+}
+
+/* @brief Read the clock data and create a file name with it
+*  @param [out] outName - The name of the file 
+*  @param [in] clockData - RTC object with access to the timestamp
+*/
+void generateFileName(char *outName, DS1307 &clockData)
+{
+  char strHour[5];
+  char strMinute[5];
+  clock.getTime();
+  itoa(clockData.hour, strHour, 10);
+  itoa(clockData.minute, strMinute, 10);
+  strcpy(outName, strHour);
+  strcat(outName, strMinute);
+  strcat(outName, ".txt");
 }
 
 uint8_t get_camera_info() {
@@ -767,4 +852,3 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //  }
 //  return temp_error;
 // }
- 
