@@ -18,7 +18,7 @@
 // -----------------------------------------
 // COMMENT define IN REAL MISSION OR IF YOU DONT WANT TO TEST AVAILABLE SRAM
 
-//#define CHECK_FREE_SRAM 
+#define CHECK_FREE_SRAM 
 
 // You need to install https://github.com/mpflaga/Arduino-MemoryFree
 #ifdef CHECK_FREE_SRAM
@@ -99,7 +99,7 @@ const int PIN_ONEWIRE = 2;
 //Information camera capturing and memory size available
 const int GPIO_C = 5;    // GPIO pin for the camera capturing signal
 const int GPIO_LSB = 6;  // GPIO pin for the less significative bit of the memory capacity signal
-const int GPIO_MSB = 7;  // GPIO pin for the less significative bit of the memory capacity signal
+const int GPIO_MSB = 3;  // GPIO pin for the less significative bit of the memory capacity signal. CHANGED, before was pin 7, but there was conflict
 
 
 // These are the address of the 5 DS18B20 temperature sensors, their code has been requested
@@ -165,8 +165,8 @@ struct SensorData {
   uint8_t hour;
   uint8_t minute;
   uint8_t second;
-  uint8_t camera_info;
-  uint8_t camera_flag;
+  uint8_t camera_info; // info of Camera Flag (bit2), and Jetson memory usage (bits 1 and 0)
+  uint8_t camera_flag; // Remove when ground station is updated
   // uint32_t checksum;
 };
 
@@ -385,12 +385,13 @@ void loop() {
   sensorData.second = clock.second;
 
 
-  String data = String(sensorData.day) + "/" + String(sensorData.month) + "/" + String(sensorData.year) + " " + String(sensorData.hour) + ":" + String(sensorData.minute) + ":" + String(sensorData.second) + "\t" + "Roll:" + String(sensorData.roll) + "\t" + "Pitch:" + String(sensorData.pitch) + "\t" + "Heading:" + String(sensorData.heading) + "\t" + "Temp-batt-Left:" + String(sensorData.battTempLeft) + "\t" + "Temp-batt-Right:" + String(sensorData.battTempRight) + "\t" + "Temp-batt-Down:" + String(sensorData.battTempDown) + "\t" + "Temp-batt-Box:" + String(sensorData.battTempBox) + "\t" + "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "\n" + "Temperature:" + String(sensorData.temperature) + "\t" + "Humidity:" + String(sensorData.humidity) + "\t" + "Pressure:" + String(sensorData.pressure) + "\t" + "GpsAltitude:" + String(sensorData.GpsAltitude) + "\t" + "Latitude:" + String(sensorData.latitude, 6) + "\t" + "Longitude:" + String(sensorData.longitude, 6) + "\t" + "Speed:" + String(sensorData.speed) + "\t" + "NumSatellites:" + String(sensorData.numSatellites) + "\t" + "Camera:" + String(sensorData.camera_info) + "\t" + "Capturing:" + String(sensorData.camera_flag);
+  // string_data is sent to serial port
+  String string_data = String(sensorData.day) + "/" + String(sensorData.month) + "/" + String(sensorData.year) + " " + String(sensorData.hour) + ":" + String(sensorData.minute) + ":" + String(sensorData.second) + "\t" + "Roll:" + String(sensorData.roll) + "\t" + "Pitch:" + String(sensorData.pitch) + "\t" + "Heading:" + String(sensorData.heading) + "\t" + "Temp-batt-Left:" + String(sensorData.battTempLeft) + "\t" + "Temp-batt-Right:" + String(sensorData.battTempRight) + "\t" + "Temp-batt-Down:" + String(sensorData.battTempDown) + "\t" + "Temp-batt-Box:" + String(sensorData.battTempBox) + "\t" + "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "\n" + "Temperature:" + String(sensorData.temperature) + "\t" + "Humidity:" + String(sensorData.humidity) + "\t" + "Pressure:" + String(sensorData.pressure) + "\t" + "GpsAltitude:" + String(sensorData.GpsAltitude) + "\t" + "Latitude:" + String(sensorData.latitude, 6) + "\t" + "Longitude:" + String(sensorData.longitude, 6) + "\t" + "Speed:" + String(sensorData.speed) + "\t" + "NumSatellites:" + String(sensorData.numSatellites) + "\t" + "Camera:" + String(sensorData.camera_info) + "\t" + "Capturing:" + String(sensorData.camera_flag);
   //  + "," + "CheckSum:" + String(sensorData.checksum, HEX);
 
   if (millis() - send_data_timer >= SEND_DATA_DELAY) {
 
-    Serial.println(data);
+    Serial.println(string_data);
     packData_and_send(sensorData);
     send_data_timer = millis();
   }
@@ -601,15 +602,34 @@ void saveDataToSDCard(File dataFile, SensorData &sensorData) {
 }
 
 uint8_t get_camera_info() {
+// Read values from jetson nano pins GPIO. We will use a byte to encode this data
+// bit 2: 1 if camera flag is ON
+// bit 1: 1 if MSB of Jetson memory capacity is 1 -> above 50%
+// bit 0: 1 if LSB of Jetson memory capacity is 1
+// So we will have:
+//           Camera ON  : Capacity
+// 7 (111):      1           +75%
+// 6 (110):      1           +50%
+// 5 (101):      1           +25%
+// 4 (100):      1           -25%
+// 3 (011):      0           +75%
+// 2 (010):      0           +50%
+// 1 (001):      0           +25%
+// 0 (000):      0           -25%
 
-  // Leer los valores de las señales de los puertos GPIO
+  // Keep this for legacy, but remove when changed in ground station
   sensorData.camera_flag = digitalRead(GPIO_C);
-  uint8_t memoryCapacityLSB = digitalRead(GPIO_LSB);
-  uint8_t memoryCapacityMSB = digitalRead(GPIO_MSB);
 
-  // Codificar los valores en un byte
-  byte encodedData = 0x00;
-  encodedData = encodedData | (memoryCapacityMSB << 5) | (memoryCapacityLSB << 4) | sensorData.camera_flag;
+  byte encodedData = 0x00; // used to encode the 3 bits as explained above
+  if (digitalRead(GPIO_C) == HIGH) {
+    encodedData = encodedData | 0x04; // write 1 in bit 2
+  } 
+  if (digitalRead(GPIO_MSB) == HIGH) {
+    encodedData = encodedData | 0x02; // write 1 in bit 1
+  } 
+  if (digitalRead(GPIO_LSB) == HIGH) {
+    encodedData = encodedData | 0x01; // write 1 in bit 0
+  } 
 
   // Imprimir el valor codificado en binario
   //Serial.println(encodedData, HEX);
