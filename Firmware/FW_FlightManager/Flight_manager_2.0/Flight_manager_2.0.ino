@@ -3,7 +3,7 @@
 #include <Adafruit_BNO055.h>
 #include <Adafruit_BME280.h>
 #include "DS1307.h"  // Grove RTC DS1307 - Seeed Studio
-#include <LoRa.h>
+#include <LoRa.h> //  LoRa by Sandeep Mistry
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -11,9 +11,21 @@
 #include <Adafruit_SleepyDog.h>
 // #include "Arduino_CRC32.h"
 // #include <PID_v1_bc.h>
-#include <PID_v1.h>
+#include <PID_v1.h>  // PID by Brett Beauregard
 // #include <Arduino_MKRGPS.h>
 // #include "ArduPID.h"
+
+// -----------------------------------------
+// COMMENT define IN REAL MISSION OR IF YOU DONT WANT TO TEST AVAILABLE SRAM
+
+//#define CHECK_FREE_SRAM 
+
+// You need to install https://github.com/mpflaga/Arduino-MemoryFree
+#ifdef CHECK_FREE_SRAM
+#include <MemoryFree.h>
+#include <pgmStrToRAM.h>
+#endif
+
 
 // --------------------------------------------------------------------
 // ---- CHANGE HERE THE BEHAVIOUR OF THE HEATPAD CONTROL WITH TEMPERATURE
@@ -293,6 +305,12 @@ void loop() {
   IMU_get_values(sensorData);
 
   // if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
+
+  #ifdef CHECK_FREE_SRAM
+  // Check free memory:
+  Serial.print("Free Memory: ");
+  Serial.println(freeMemory());
+  #endif
 
   // Abrir el archivo en modo de escritura
   Serial.println("Before barometer measure");
