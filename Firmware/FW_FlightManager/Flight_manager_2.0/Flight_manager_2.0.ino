@@ -15,9 +15,21 @@
 // #include <Arduino_MKRGPS.h>
 // #include "ArduPID.h"
 
+// COMMENT IN REAL MISSION
+// UNCOMMENT FOR DEBUGGIN
+//#define DEBUG
+
+#ifdef DEBUG
+  #define SERIAL_DEBUG(x) Serial.print (x)
+  #define SERIAL_DEBUG_LN(x) Serial.println (x)
+#else  // do not use serial print: do nothing:
+  #define SERIAL_DEBUG(x)
+  #define SERIAL_DEBUG_LN(x)
+#endif
+
 // -----------------------------------------
 // COMMENT define IN REAL MISSION OR IF YOU DONT WANT TO TEST AVAILABLE SRAM
-
+// UNCOMMENT define IF YOU WANT TO TEST AVAILABLE SRAM
 #define CHECK_FREE_SRAM 
 
 // You need to install https://github.com/mpflaga/Arduino-MemoryFree
@@ -223,7 +235,9 @@ PID myPID(&input, &output, &setpoint, consKp, consKi, consKd, DIRECT);
 void setup() {
 
   Watchdog.disable();
+#ifdef DEBUG
   Serial.begin(115200);
+#endif
   delay(2000);
 
   //GPIO configuration for camera info flags
@@ -241,52 +255,52 @@ void setup() {
 
   clock.begin();
 
-  Serial.println("Bentayga I. System init");
+  SERIAL_DEBUG_LN("Bentayga I. System init");
 
   temperature_sensor_init();  // Initializacion of the 5 DS18B20 temperature sensors
 
   // Inicializar la tarjeta SD
   if (!SD.begin(4)) {
-    Serial.println("ERROR: Failed to initialize SD card!");
+    SERIAL_DEBUG_LN("ERROR: Failed to initialize SD card!");
 
   } else {
 
-    Serial.println("SD card initialized.      Status: OK");
+    SERIAL_DEBUG_LN("SD card initialized.      Status: OK");
     dataFile = openDataFile(fileLog);
     dataFile.println("Reset WatchDog");
     dataFile.close();
   }
 
   if (!bno.begin()) {
-    Serial.println("ERROR: BNO055 NOT detected");
+    SERIAL_DEBUG_LN("ERROR: BNO055 NOT detected");
 
   } else {
-    Serial.println("BNO55 IMU sensor connected.Status: OK");
+    SERIAL_DEBUG_LN("BNO55 IMU sensor connected.Status: OK");
     IMU_calibration();
   }
 
   //  if (!GPS.begin()) {
-  //   Serial.println("Failed to initialize GPS!");
+  //   SERIAL_DEBUG_LN("Failed to initialize GPS!");
   // } else {
-  //   Serial.println("GPS System init.          Status: OK");
+  //   SERIAL_DEBUG_LN("GPS System init.          Status: OK");
   // }
 
   if (!myGNSS.begin()) {
-    Serial.println("Failed to initialize GPS!");
+    SERIAL_DEBUG_LN("Failed to initialize GPS!");
   } else {
-    Serial.println("GPS System init.          Status : OK");
+    SERIAL_DEBUG_LN("GPS System init.          Status : OK");
   }
 
   if (!bme.begin(0x76)) {  // la dirección puede ser 0x77 dependiendo de tu módulo
-    Serial.println("ERROR: Failed to initialize the barometer BME280");
+    SERIAL_DEBUG_LN("ERROR: Failed to initialize the barometer BME280");
   } else {
-    Serial.println("BME280 Sensor.            Status: OK");
+    SERIAL_DEBUG_LN("BME280 Sensor.            Status: OK");
   }
 
   if (!LoRa.begin(868E6)) {
-    Serial.println("ERROR: Starting LoRa failed!");
+    SERIAL_DEBUG_LN("ERROR: Starting LoRa failed!");
   } else {
-    Serial.println("LoRa Transceiver.         Status: OK");
+    SERIAL_DEBUG_LN("LoRa Transceiver.         Status: OK");
   }
 
   LoRa.setTxPower(20);
@@ -306,14 +320,14 @@ void loop() {
 
   // if (millis() - sample_counter >= SAMPLE_SENSOR_TIME) {
 
-  #ifdef CHECK_FREE_SRAM
+#ifdef CHECK_FREE_SRAM
   // Check free memory:
-  Serial.print("Free Memory: ");
-  Serial.println(freeMemory());
-  #endif
+  SERIAL_DEBUG("Free Memory: ");
+  SERIAL_DEBUG_LN(freeMemory());
+#endif
 
   // Abrir el archivo en modo de escritura
-  Serial.println("Before barometer measure");
+  SERIAL_DEBUG_LN("Before barometer measure");
   sensorData.temperature = bme.readTemperature();
   sensorData.humidity = bme.readHumidity();
   sensorData.pressure = bme.readPressure() / 100.0;
@@ -337,7 +351,7 @@ void loop() {
 
   // if(millis() - GPS_sample_counter >SAMPLE_GPS_TIME){
 
-  //   Serial.println("Before GPS measure");
+  //   SERIAL_DEBUG_LN("Before GPS measure");
   //   sensorData.latitude = GPS.latitude();
   //   sensorData.longitude = GPS.longitude();
   //   sensorData.GpsAltitude = GPS.altitude();
@@ -345,16 +359,16 @@ void loop() {
   //   sensorData.numSatellites = GPS.satellites();
   //   }
 
-  // if(millis() - GPS_sample_counter >SAMPLE_GPS_TIME){
-  // Serial.println("Before GPS measure");
-  // sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
-  // sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
-  // sensorData.GpsAltitude = myGNSS.getAltitude() / 1000.0;
-  // sensorData.speed = myGNSS.getGroundSpeed() / 1000.0;
-  // sensorData.numSatellites = myGNSS.getSIV();
-  // GPS_sample_counter = millis();
-  // delay(10);
-  // }
+  if(millis() - GPS_sample_counter >SAMPLE_GPS_TIME){
+   SERIAL_DEBUG_LN("Before GPS measure");
+   sensorData.latitude = myGNSS.getLatitude() / 10000000.0;
+   sensorData.longitude = myGNSS.getLongitude() / 10000000.0;
+   sensorData.GpsAltitude = myGNSS.getAltitude() / 1000.0;
+   sensorData.speed = myGNSS.getGroundSpeed() / 1000.0;
+   sensorData.numSatellites = myGNSS.getSIV();
+   GPS_sample_counter = millis();
+   delay(10);
+  }
 
   sensorData.camera_info = get_camera_info();
 
@@ -367,7 +381,7 @@ void loop() {
   //     clock.fillByHMS(myGNSS.getHour(), myGNSS.getMinute(), myGNSS.getSecond());  //15:28 30"
   //     // clock.fillDayOfWeek(SAT);//Saturday
   //     clock.setTime();  //write time to the RTC chip
-  //     Serial.println("TIME GPS SYNC OK");
+  //     SERIAL_DEBUG_LN("TIME GPS SYNC OK");
   //     update_time = false;
   //   }
   // }
@@ -375,7 +389,7 @@ void loop() {
   //   sample_counter = millis();
   // }
 
-  Serial.println("Before clock get time");
+  SERIAL_DEBUG_LN("Before clock get time");
   clock.getTime();
   sensorData.year = clock.year + 2000;
   sensorData.month = clock.month;
@@ -385,20 +399,24 @@ void loop() {
   sensorData.second = clock.second;
 
 
+#ifdef DEBUG
   // string_data is sent to serial port
   String string_data = String(sensorData.day) + "/" + String(sensorData.month) + "/" + String(sensorData.year) + " " + String(sensorData.hour) + ":" + String(sensorData.minute) + ":" + String(sensorData.second) + "\t" + "Roll:" + String(sensorData.roll) + "\t" + "Pitch:" + String(sensorData.pitch) + "\t" + "Heading:" + String(sensorData.heading) + "\t" + "Temp-batt-Left:" + String(sensorData.battTempLeft) + "\t" + "Temp-batt-Right:" + String(sensorData.battTempRight) + "\t" + "Temp-batt-Down:" + String(sensorData.battTempDown) + "\t" + "Temp-batt-Box:" + String(sensorData.battTempBox) + "\t" + "Temp-Cubesat-DS18:" + String(sensorData.TempCubesatDS18) + "\n" + "Temperature:" + String(sensorData.temperature) + "\t" + "Humidity:" + String(sensorData.humidity) + "\t" + "Pressure:" + String(sensorData.pressure) + "\t" + "GpsAltitude:" + String(sensorData.GpsAltitude) + "\t" + "Latitude:" + String(sensorData.latitude, 6) + "\t" + "Longitude:" + String(sensorData.longitude, 6) + "\t" + "Speed:" + String(sensorData.speed) + "\t" + "NumSatellites:" + String(sensorData.numSatellites) + "\t" + "Camera:" + String(sensorData.camera_info) + "\t" + "Capturing:" + String(sensorData.camera_flag);
   //  + "," + "CheckSum:" + String(sensorData.checksum, HEX);
+#endif
 
   if (millis() - send_data_timer >= SEND_DATA_DELAY) {
 
-    Serial.println(string_data);
+#ifdef DEBUG
+    SERIAL_DEBUG_LN(string_data);
+#endif
     packData_and_send(sensorData);
     send_data_timer = millis();
   }
 
   if (millis() - write_sd_data_timer >= WRITE_SD_DATA_DELAY) {
 
-    Serial.println("Before write SD");
+    SERIAL_DEBUG_LN("Before write SD");
     saveDataToSDCard(openDataFile(fileLog), sensorData);
     write_sd_data_timer = millis();
     delay(5);
@@ -411,11 +429,14 @@ void loop() {
 void prnt_dev_addr(DeviceAddress addr) {
   for (uint8_t i = 0; i < 8; i++) {
     // If only one digit, fill it wit a zero on the left
-    if (addr[i] < 16) Serial.print("0");
+    if (addr[i] < 16) SERIAL_DEBUG("0");
     // show in HEX
+#ifdef DEBUG    
     Serial.print(addr[i], HEX);
+#endif
+ 
   }
-  Serial.println("");
+  SERIAL_DEBUG_LN("");
 }
 
 void packData_and_send(SensorData sensorData) {
@@ -445,15 +466,15 @@ void IMU_calibration() {
 
   uint8_t system, gyro, accel, mag = 0;
   bno.getCalibration(&system, &gyro, &accel, &mag);
-  Serial.println();
-  Serial.print("Calibration: Sys=");
-  Serial.print(system);
-  Serial.print(" Gyro=");
-  Serial.print(gyro);
-  Serial.print(" Accel=");
-  Serial.print(accel);
-  Serial.print(" Mag=");
-  Serial.println(mag);
+  SERIAL_DEBUG_LN();
+  SERIAL_DEBUG("Calibration: Sys=");
+  SERIAL_DEBUG(system);
+  SERIAL_DEBUG(" Gyro=");
+  SERIAL_DEBUG(gyro);
+  SERIAL_DEBUG(" Accel=");
+  SERIAL_DEBUG(accel);
+  SERIAL_DEBUG(" Mag=");
+  SERIAL_DEBUG_LN(mag);
 }
 
 bool temperature_sensor_init() {
@@ -464,23 +485,23 @@ bool temperature_sensor_init() {
 
   sensor_DS18.setResolution(SENSOR_BIT_RESOL);
   resolution = sensor_DS18.getResolution();
-  Serial.print("Setting DS18B20 temperature sensor resolution to 0.50 C: ");
-  Serial.print(resolution);
-  Serial.println("bits");
+  SERIAL_DEBUG("Setting DS18B20 temperature sensor resolution to 0.50 C: ");
+  SERIAL_DEBUG(resolution);
+  SERIAL_DEBUG_LN("bits");
 
   // Searching sensors
-  Serial.println("Searching temp sensors...");
-  Serial.print("Found: ");
+  SERIAL_DEBUG_LN("Searching temp sensors...");
+  SERIAL_DEBUG("Found: ");
   byte numSensorsFound = sensor_DS18.getDeviceCount();
-  Serial.print(numSensorsFound);
-  Serial.println(" sensors");
+  SERIAL_DEBUG(numSensorsFound);
+  SERIAL_DEBUG_LN(" sensors");
   if (numSensorsFound < DS18_NR) {
-    Serial.print(" Missing ");
+    SERIAL_DEBUG(" Missing ");
     int miss_ds18 = DS18_NR - numSensorsFound;
-    Serial.print(miss_ds18);
-    Serial.println(" DS18B20 temperature sensors");
+    SERIAL_DEBUG(miss_ds18);
+    SERIAL_DEBUG_LN(" DS18B20 temperature sensors");
   } else {
-    Serial.println("All DS18B20 temperature sensors found");
+    SERIAL_DEBUG_LN("All DS18B20 temperature sensors found");
   }
   // If found any, show address
   if (numSensorsFound >= 1) {
@@ -491,21 +512,21 @@ bool temperature_sensor_init() {
       // compare the address with the sensors
       if (comp_dev_addr(sens_temp_addr, TEMP_CUBESAT_ADDR)) {
         temp_cubesat_found = true;
-        Serial.print("General cubesat sensor address found: ");  // inside cubesat, outside battery box
+        SERIAL_DEBUG("General cubesat sensor address found: ");  // inside cubesat, outside battery box
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_BOX_ADDR)) {
         temp_bat_box_found = true;
-        Serial.print("Battery box sensor address found:     ");
+        SERIAL_DEBUG("Battery box sensor address found:     ");
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_LEFT_ADDR)) {
-        Serial.print("Left heatmat sensor address found:    ");
+        SERIAL_DEBUG("Left heatmat sensor address found:    ");
         temp_bat_left_found = true;
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_RIGHT_ADDR)) {
-        Serial.print("Right heatmat sensor address found:   ");
+        SERIAL_DEBUG("Right heatmat sensor address found:   ");
         temp_bat_right_found = true;
       } else if (comp_dev_addr(sens_temp_addr, TEMP_BAT_DOWN_ADDR)) {
-        Serial.print("Down heatmat sensor address found:    ");
+        SERIAL_DEBUG("Down heatmat sensor address found:    ");
         temp_bat_down_found = true;
       } else {
-        Serial.print("Unkown temperature sensor address found:    ");
+        SERIAL_DEBUG("Unkown temperature sensor address found:    ");
       }
       // print the address
       prnt_dev_addr(sens_temp_addr);  // print the address
@@ -513,29 +534,29 @@ bool temperature_sensor_init() {
 
     // after the loop, check if there is a missing temperature sensor:
     if (!temp_cubesat_found) {
-      Serial.print("WARNING: General cubesat DS18B20 temperature sensor address not found, address:  ");
+      SERIAL_DEBUG("WARNING: General cubesat DS18B20 temperature sensor address not found, address:  ");
       prnt_dev_addr(TEMP_CUBESAT_ADDR);
     }
     if (!temp_bat_box_found) {
-      Serial.print("WARNING: Battery box DS18B20 temperature sensor address not found, address:  ");
+      SERIAL_DEBUG("WARNING: Battery box DS18B20 temperature sensor address not found, address:  ");
       prnt_dev_addr(TEMP_BAT_BOX_ADDR);
     }
     if (!temp_bat_right_found) {
-      Serial.print("WARNING: Rigth heatmat DS18B20 temperature sensor address not found, address:  ");
+      SERIAL_DEBUG("WARNING: Rigth heatmat DS18B20 temperature sensor address not found, address:  ");
       prnt_dev_addr(TEMP_BAT_RIGHT_ADDR);
     }
     if (!temp_bat_left_found) {
-      Serial.print("WARNING: Left heatmat DS18B20 temperature sensor address not found, address:  ");
+      SERIAL_DEBUG("WARNING: Left heatmat DS18B20 temperature sensor address not found, address:  ");
       prnt_dev_addr(TEMP_BAT_LEFT_ADDR);
     }
     if (!temp_bat_down_found) {
-      Serial.print("WARNING: Down heatmat DS18B20 temperature sensor address not found, address:  ");
+      SERIAL_DEBUG("WARNING: Down heatmat DS18B20 temperature sensor address not found, address:  ");
       prnt_dev_addr(TEMP_BAT_DOWN_ADDR);
     }
 
     return true;
   } else {
-    Serial.println("No DS18B20 temperature sensors found");
+    SERIAL_DEBUG_LN("No DS18B20 temperature sensors found");
     return false;
   }
 }
@@ -543,8 +564,8 @@ bool temperature_sensor_init() {
 File openDataFile(const char *filename) {
   File dataFile = SD.open(filename, FILE_WRITE);
   if (!dataFile) {
-    Serial.print("ERROR: Failed to open data file: ");
-    Serial.println(filename);
+    SERIAL_DEBUG("ERROR: Failed to open data file: ");
+    SERIAL_DEBUG_LN(filename);
   }
   return dataFile;
 }
@@ -632,7 +653,7 @@ uint8_t get_camera_info() {
   } 
 
   // Imprimir el valor codificado en binario
-  //Serial.println(encodedData, HEX);
+  //SERIAL_DEBUG_LN(encodedData, HEX);
   return encodedData;
 }
 
@@ -680,16 +701,16 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
   //   output=0;
   // }
 
-  Serial.print("PID Setpoint");
-  Serial.print(setpoint);
-  Serial.print("\t");
-  Serial.print("PID Output");
-  Serial.print(output);
-  Serial.print("\t");
-  Serial.print("Input PID:");
-  Serial.print(input);
-  Serial.print("\t");
-  Serial.println();
+  SERIAL_DEBUG("PID Setpoint");
+  SERIAL_DEBUG(setpoint);
+  SERIAL_DEBUG("\t");
+  SERIAL_DEBUG("PID Output");
+  SERIAL_DEBUG(output);
+  SERIAL_DEBUG("\t");
+  SERIAL_DEBUG("Input PID:");
+  SERIAL_DEBUG(input);
+  SERIAL_DEBUG("\t");
+  SERIAL_DEBUG_LN();
 
   // Write the value to PWM port
   analogWrite(PIN_HEATMATS, output);
@@ -747,19 +768,19 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //      // the 3 sensors give very different temperatures
 //      // to be safe, take the highest of them, to avoid overheat
 //      comm_temp = highest_temp;
-//      Serial.println("The 3 heatmat sensors give very diff temperatures");
+//      SERIAL_DEBUG_LN("The 3 heatmat sensors give very diff temperatures");
 //      temp_error = 1;
 //    } else { // temp_high is much larger than the two low temperatures
 //      // check with the battery box temperature
 //      if ((highest_temp - MAX_DIFF_SENS_TEMP) > temp_box) {
 //        // high temp abnormally high, remove it, and get average of other 2
 //        comm_temp = (int) (mid_temp + lowest_temp) / 2;
-//        Serial.println("One heatmat sensor gives higher temperatures: discarded");
+//        SERIAL_DEBUG_LN("One heatmat sensor gives higher temperatures: discarded");
 //        temp_error = 1;
 //      } else {
 //        // strange, two temps are high, and two are low, take the high temp to be safe
 //        comm_temp = highest_temp;
-//        Serial.println("2 heatmat sensor give lower temperatures");
+//        SERIAL_DEBUG_LN("2 heatmat sensor give lower temperatures");
 //        temp_error = 1;
 //      }
 //    }
@@ -767,12 +788,12 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //    // check with the battery box temperature
 //    if (temp_box > (lowest_temp + MAX_DIFF_SENS_TEMP))  { // lowest is outlier, remove it
 //      comm_temp = (int) (mid_temp + highest_temp) / 2;
-//      Serial.println("One heatmat sensor gives lower temperatures: discarded");
+//      SERIAL_DEBUG_LN("One heatmat sensor gives lower temperatures: discarded");
 //      temp_error = 1;
 //    } else {
 //      // strange, two temps are high, and two are low, take the high temp to be safe
 //      comm_temp = (int) (mid_temp + highest_temp) / 2;
-//      Serial.println("2 heatmat sensor give higher temperatures");
+//      SERIAL_DEBUG_LN("2 heatmat sensor give higher temperatures");
 //      temp_error = 1;
 //    }
 //  } else { // temperatures in range
@@ -781,27 +802,27 @@ int temp_ctrl(float temp_left, float temp_down, float temp_right) {
 //    temp_error = 0;
 //  }
 //
-//  Serial.print("Avg Bat temp: ");
-//  Serial.println(comm_temp);
+//  SERIAL_DEBUG("Avg Bat temp: ");
+//  SERIAL_DEBUG_LN(comm_temp);
 //  if (comm_temp > MIN_TEMP_START) { // batteries are warm, heatmats off
 //    digitalWrite(PIN_HEATMATS, LOW);
-//    Serial.println("Heat OFF");
+//    SERIAL_DEBUG_LN("Heat OFF");
 //  } else if (comm_temp > MIN_TEMP_2) { // batteries starting to be cold
 //    analogWrite(PIN_HEATMATS, HEAT_START);
-//    Serial.print("Heat level 1, PWM value: ");
-//    Serial.println(HEAT_START);
+//    SERIAL_DEBUG("Heat level 1, PWM value: ");
+//    SERIAL_DEBUG_LN(HEAT_START);
 //  } else if (comm_temp > MIN_TEMP_3) { // batteries are cold
 //    analogWrite(PIN_HEATMATS, HEAT_2);
-//    Serial.print("Heat level 2, PWM value: ");
-//    Serial.println(HEAT_2);
+//    SERIAL_DEBUG("Heat level 2, PWM value: ");
+//    SERIAL_DEBUG_LN(HEAT_2);
 //  } else if (comm_temp > MIN_TEMP_EXTREM) { // batteries even colder
 //    analogWrite(PIN_HEATMATS, HEAT_3);
-//    Serial.print("Heat level 3, PWM value: ");
-//    Serial.println(HEAT_3);
+//    SERIAL_DEBUG("Heat level 3, PWM value: ");
+//    SERIAL_DEBUG_LN(HEAT_3);
 //  } else { // batteries beyond the limit
 //    analogWrite(PIN_HEATMATS, HEAT_FULL); // heat mats at full power
-//    Serial.print("Heat level FULL, PWM value: ");
-//    Serial.println(HEAT_FULL);
+//    SERIAL_DEBUG("Heat level FULL, PWM value: ");
+//    SERIAL_DEBUG_LN(HEAT_FULL);
 //  }
 //  return temp_error;
 // }
