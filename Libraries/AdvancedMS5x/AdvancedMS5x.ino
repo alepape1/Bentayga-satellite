@@ -54,7 +54,7 @@ void setup() {
 	   I2C_LOW		Sets address to 0x76
 	   I2C_HIGH		Sets address to 0x77 <- Default
 	*/
-	barometer.setI2Caddr(I2C_LOW); 
+	barometer.setI2Caddr(I2C_HIGH); 
 	
 	/* This will set oversampling ratio, acceptable values are:
 	   MS5xxx_CMD_ADC_256 (Resolution RMS Temp=0.012°C/Press=0.065mbar)

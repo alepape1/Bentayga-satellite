@@ -1,0 +1,7 @@
+I2C scanner. Scanning ...
+Found address: 40 (0x28)
+Found address: 66 (0x42)
+Found address: 96 (0x60)
+Found address: 104 (0x68)
+Found address: 107 (0x6B)
+Found address: 118 (0x76)  -> BME280
